@@ -905,6 +905,13 @@
                 <button class="btn-send" onclick="sendMessage()">Send</button>
             </div>
         </div>
+        <div id="analyze-section" style="display:none;text-align:center;margin-top:20px;">
+    <button onclick="analyzeWorkflow()" style="background:transparent;border:1px solid rgba(200,169,110,0.4);color:var(--gold);font-family:'DM Sans',sans-serif;font-size:11px;letter-spacing:3px;text-transform:uppercase;padding:14px 42px;cursor:pointer;transition:all 0.3s;" onmouseover="this.style.background='rgba(200,169,110,0.08)'" onmouseout="this.style.background='transparent'">Analyze my workflow</button>
+</div>
+<div id="analyze-result" style="display:none;margin-top:24px;background:var(--ink-mid);border:1px solid rgba(200,169,110,0.2);padding:32px 36px;">
+    <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:4px;text-transform:uppercase;color:var(--gold);opacity:0.7;margin-bottom:20px;">Workflow Analysis</div>
+    <div id="analyze-content" style="font-size:15px;line-height:1.8;color:rgba(255,255,255,0.75);"></div>
+</div>
         <p class="chat-disclaimer">Powered by Claude AI &mdash; Bogong AI Lab</p>
     </div>
 </section>
@@ -959,7 +966,7 @@
     var API_BASE = "";
     var chatHistory = [];
 
-    var SYSTEM_PROMPT = "You are the Bogong AI Lab assistant. Bogong AI Solutions Lab is a Melbourne-based AI architecture and analytics firm. We analyze how businesses operate and build custom AI systems that fit their specific workflows. We do not sell templates or off-the-shelf software — we architect, build and implement. Our services include: AI chatbots and customer systems, operations automation (stock management, scheduling, reporting), analytics dashboards, prompt engineering, and web AI integration. We have already built Mirrors (bogongai.com) — a live triple-AI reflection product. Be honest, direct and specific. Ask questions to understand the person's business. If AI is not the right solution for something, say so. Keep responses concise and professional. Do not use bullet points excessively. Sound like a smart, experienced consultant — not a salesperson.";
+    var SYSTEM_PROMPT = "e triple-AI reflection product. Be honest, direct and specific. Ask questions to understand the person's business. If AI is not the right solution for something, say so. Keep responses concise and professional. Do not use bullet points excessively. Sound like a smart, experienced consultant — not a salesperson.";
 
     async function sendMessage() {
         var input = document.getElementById('chatInput');
@@ -1073,3 +1080,4 @@
 </body>
 
 </html>
+
