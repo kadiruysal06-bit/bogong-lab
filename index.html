@@ -995,12 +995,40 @@
             var reply = data.result || data.error || 'Something went wrong.';
             appendMessage('bot', reply);
             chatHistory.push({ role: 'assistant', content: reply });
+            if (chatHistory.length >= 2) {
+    document.getElementById('analyze-section').style.display = 'block';
+}
         } catch(e) {
             typingEl.remove();
             appendMessage('bot', 'Connection error. Please try again or email hello@bogongai.net');
         }
     }
+async function analyzeWorkflow() {
+    document.getElementById('analyze-result').style.display = 'block';
+    document.getElementById('analyze-content').innerHTML = '<div class="typing"><span></span><span></span><span></span></div>';
+    
+    var conversation = chatHistory.map(function(m) {
+        return m.role.toUpperCase() + ': ' + m.content;
+    }).join('\n\n');
 
+    var analysisPrompt = 'You are a business AI analyst. Based on the conversation below, produce a structured workflow analysis. Use these exact headers:\n\nCurrent State:\nFriction Points:\nAI Opportunity:\nRealistic Next Step:\n\nBe specific, honest, and concise. No fluff. If AI is not the right solution for something, say so.\n\nConversation:\n' + conversation;
+
+    try {
+        var response = await fetch('/api/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                messages: [{ role: 'user', content: analysisPrompt }],
+                system: 'You are a precise business analyst. Produce structured, honest workflow analyses.'
+            })
+        });
+        var data = await response.json();
+        var result = data.result || 'Could not generate analysis.';
+        document.getElementById('analyze-content').innerHTML = result.replace(/\\([^]+)\\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
+    } catch(e) {
+        document.getElementById('analyze-content').innerHTML = 'Connection error. Please try again.';
+    }
+}
     function appendMessage(role, text) {
         var container = document.getElementById('chatMessages');
         var div = document.createElement('div');
@@ -1080,4 +1108,5 @@
 </body>
 
 </html>
+
 
