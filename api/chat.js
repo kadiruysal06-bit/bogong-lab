@@ -7,7 +7,7 @@ if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allo
 
 var body = req.body;
 var messages = body.messages || [];
-var system = body.system || '';
+var system = process.env.SYSTEM_PROMPT || body.system || '';
 
 try {
 var response = await fetch('https://api.anthropic.com/v1/messages', {
@@ -32,4 +32,5 @@ return res.status(200).json({ result: data.content[0].text });
 } catch (err) {
 return res.status(500).json({ error: err.message });
 }
+
 }
