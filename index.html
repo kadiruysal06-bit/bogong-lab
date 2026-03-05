@@ -976,7 +976,19 @@
     var chatHistory = [];
 
     var SYSTEM_PROMPT = "";
+   var summaryTimer = null;
 
+function scheduleSummary() {
+    if (summaryTimer) clearTimeout(summaryTimer);
+    if (chatHistory.length < 2) return;
+    summaryTimer = setTimeout(function() {
+        fetch('/api/summary', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ messages: chatHistory })
+        }).catch(function(){});
+    }, 120000);
+}
     async function sendMessage() {
         var input = document.getElementById('chatInput');
         var text = input.value.trim();
@@ -987,7 +999,7 @@
 
         appendMessage('user', text);
         chatHistory.push({ role: 'user', content: text });
-
+        scheduleSummary();
         var typingEl = appendTyping();
 
         try {
@@ -1117,6 +1129,7 @@ async function analyzeWorkflow() {
 </body>
 
 </html>
+
 
 
 
