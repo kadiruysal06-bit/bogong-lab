@@ -1124,11 +1124,52 @@ async function analyzeWorkflow() {
     document.querySelectorAll('.reveal').forEach(function(el) {
         observer.observe(el);
     });
+    async function submitForm() {
+    var name = document.getElementById('formName').value.trim();
+    var email = document.getElementById('formEmail').value.trim();
+    var message = document.getElementById('formMessage').value.trim();
+    var status = document.getElementById('formStatus');
+    
+    if (!email || !message) {
+        status.textContent = 'Please enter your email and message.';
+        return;
+    }
+    
+    var btn = document.querySelector('.btn-submit');
+    btn.textContent = 'Sending...';
+    btn.disabled = true;
+    status.textContent = '';
+    
+    try {
+        var r = await fetch('/api/contact', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name: name, email: email, message: message })
+        });
+        var d = await r.json();
+        if (d.ok) {
+            btn.textContent = 'Sent ✓';
+            status.textContent = 'Message received. We will be in touch.';
+            document.getElementById('formName').value = '';
+            document.getElementById('formEmail').value = '';
+            document.getElementById('formMessage').value = '';
+        } else {
+            btn.textContent = 'Send message';
+            btn.disabled = false;
+            status.textContent = 'Something went wrong. Please try again.';
+        }
+    } catch(e) {
+        btn.textContent = 'Send message';
+        btn.disabled = false;
+        status.textContent = 'Connection error. Please try again.';
+    }
+}
 </script>
 
 </body>
 
 </html>
+
 
 
 
