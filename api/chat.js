@@ -8,7 +8,18 @@ if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allo
 var body = req.body;
 var messages = body.messages || [];
 var system = process.env.SYSTEM_PROMPT || body.system || '';
+if (!body.messages || !Array.isArray(body.messages)) {
+    return res.status(400).json({ error: 'Invalid request' });
+}
 
+var lastMessage = body.messages[body.messages.length - 1];
+if (lastMessage && lastMessage.content && lastMessage.content.length > 2000) {
+    return res.status(400).json({ error: 'Message too long' });
+}
+
+if (body.messages.length > 20) {
+    return res.status(400).json({ error: 'Conversation limit reached' });
+}
 try {
 var response = await fetch('https://api.anthropic.com/v1/messages', {
 method: 'POST',
@@ -34,3 +45,4 @@ return res.status(500).json({ error: err.message });
 }
 
 }
+
