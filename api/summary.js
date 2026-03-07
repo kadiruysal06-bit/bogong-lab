@@ -41,8 +41,8 @@ headers: {
 'Authorization': 'Bearer ' + process.env.RESEND_KEY
 },
 body: JSON.stringify({
-from: 'Bogong Lab <studio@bogongai.net>',
-to: 'studio@mail.bogongai.net',
+from: 'Bogong Lab <studio@mail.bogongai.net>',
+to: 'studio@bogongai.net',
 subject: 'New conversation — Bogong AI Lab',
 text: summary + '\n\nMessages: ' + messages.length
 })
