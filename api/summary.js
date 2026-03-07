@@ -33,7 +33,7 @@ messages: [{ role: 'user', content: summaryPrompt }]
 
 var claudeData = await claudeRes.json();
 var summary = claudeData.content ? claudeData.content[0].text : 'No summary available';
-
+console.log('Claude response:', JSON.stringify(claudeData));
 var mailRes = await fetch('https://api.resend.com/emails', {
 method: 'POST',
 headers: {
