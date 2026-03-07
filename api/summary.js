@@ -42,7 +42,7 @@ headers: {
 },
 body: JSON.stringify({
 from: 'Bogong Lab <studio@bogongai.net>',
-to: 'studio@bogongai.net',
+to: 'studio@mail.bogongai.net',
 subject: 'New conversation — Bogong AI Lab',
 text: summary + '\n\nMessages: ' + messages.length
 })
