@@ -169,7 +169,7 @@ var r1 = new RegExp(t1 + ‘([^’ + t1 + ‘]+)’ + t1, ‘g’);
 return text
 .replace(r3, ‘<pre><code>$2</code></pre>’)
 .replace(r1, ‘<code>$1</code>’)
-.replace(/*([^]+)**/g, ‘<strong>$1</strong>’)
+.replace(/**([^*]+)**/g, ‘<strong>$1</strong>’)
 .replace(/\n/g, ‘<br>’);
 }
 
@@ -204,7 +204,7 @@ var contentEl = addAIMsg(‘claude’);
 try {
 var msgs = histories.claude.map(function(m) { return { role: m.role, content: m.content }; });
 
-
+```
 var response = await fetch('/api/claude', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
@@ -248,7 +248,7 @@ while (true) {
 cursor = contentEl.querySelector('.streaming-cursor');
 if (cursor) cursor.remove();
 histories.claude.push({ role: 'assistant', content: fullText });
-
+```
 
 } catch(e) {
 contentEl.textContent = ’Error: ’ + e.message;
@@ -265,7 +265,7 @@ var msgs = histories.gemini.map(function(m) {
 return { role: m.role === ‘assistant’ ? ‘model’ : ‘user’, parts: [{ text: m.content }] };
 });
 
-
+```
 var response = await fetch('/api/gemini', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
@@ -303,7 +303,7 @@ while (true) {
 var cursor = contentEl.querySelector('.streaming-cursor');
 if (cursor) cursor.remove();
 histories.gemini.push({ role: 'assistant', content: fullText });
-
+```
 
 } catch(e) {
 contentEl.textContent = ’Error: ’ + e.message;
@@ -320,7 +320,7 @@ var msgs = [{ role: ‘system’, content: settings.promptGpt }].concat(
 histories.gpt.map(function(m) { return { role: m.role, content: m.content }; })
 );
 
-
+```
 var response = await fetch('/api/gpt', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
@@ -355,7 +355,7 @@ while (true) {
 var cursor = contentEl.querySelector('.streaming-cursor');
 if (cursor) cursor.remove();
 histories.gpt.push({ role: 'assistant', content: fullText });
-
+```
 
 } catch(e) {
 contentEl.textContent = ’Error: ’ + e.message;
