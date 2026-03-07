@@ -15,7 +15,7 @@ var conversation = messages.map(function(m) {
 return m.role.toUpperCase() + ': ' + m.content;
 }).join('\n\n');
 
-var summaryPrompt = 'Analyze this business chatbot conversation in 2 sentences. Identify: 1) What business/industry this person is in. 2) Their main challenge or interest level. Be concise and professional. No names needed.\n\nConversation:\n' + conversation;
+var summaryPrompt = 'Analyze this business chatbot conversation in 2 sentences. Identify: 1) What business/industry this person is in. 2) Their main challenge or interest level. Be concise and professional.Respond in the same language as the conversation. No names needed.\n\nConversation:\n' + conversation;
 
 var claudeRes = await fetch('https://api.anthropic.com/v1/messages', {
 method: 'POST',
