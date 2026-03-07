@@ -8,7 +8,7 @@ if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allo
 var body = req.body;
 var messages = body.messages || [];
 
-if (messages.length < 2) return res.status(200).json({ ok: true });
+if (messages.length < 1) return res.status(200).json({ ok: true });
 
 try {
 var conversation = messages.map(function(m) {
