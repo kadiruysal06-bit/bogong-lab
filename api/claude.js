@@ -14,25 +14,17 @@ module.exports = async function handler(req, res) {
         'anthropic-version': '2023-06-01'
       },
       body: JSON.stringify({
-        model: 'claude-opus-4-5',
+        model: 'claude-haiku-4-5-20251001',
         max_tokens: 1500,
         system: system || '',
-        messages: messages,
-        stream: true
+        messages: messages
       })
     });
 
-    res.setHeader('Content-Type', 'text/event-stream');
-    res.setHeader('Cache-Control', 'no-cache');
-    res.setHeader('Access-Control-Allow-Origin', '*');
+    const data = await response.json();
+    const text = data.content && data.content[0] && data.content[0].text ? data.content[0].text : 'No response';
 
-    const reader = response.body.getReader();
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      res.write(value);
-    }
-    res.end();
+    res.status(200).json({ text: text });
 
   } catch (err) {
     res.status(500).json({ error: err.message });
