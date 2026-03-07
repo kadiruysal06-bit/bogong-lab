@@ -199,40 +199,11 @@ async function callClaude(text) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ system: settings.promptClaude, messages: msgs })
     });
-    contentEl.innerHTML = '';
-    var cursor = document.createElement('span');
-    cursor.className = 'streaming-cursor';
-    contentEl.appendChild(cursor);
-    var reader = response.body.getReader();
-    var decoder = new TextDecoder();
-    var fullText = '';
-    while (true) {
-      var result = await reader.read();
-      if (result.done) break;
-      var chunk = decoder.decode(result.value);
-      var lines = chunk.split('\n');
-      for (var li = 0; li < lines.length; li++) {
-        var line = lines[li];
-        if (line.indexOf('data: ') === 0) {
-          var data = line.slice(6);
-          if (data === '[DONE]') continue;
-          try {
-            var parsed = JSON.parse(data);
-            if (parsed.type === 'content_block_delta' && parsed.delta && parsed.delta.text) {
-              fullText += parsed.delta.text;
-              contentEl.innerHTML = formatText(fullText);
-              var cur = document.createElement('span');
-              cur.className = 'streaming-cursor';
-              contentEl.appendChild(cur);
-              scrollPanel('claude');
-            }
-          } catch(e) {}
-        }
-      }
-    }
-    var cur2 = contentEl.querySelector('.streaming-cursor');
-    if (cur2) cur2.remove();
+    var data = await response.json();
+    var fullText = data.text || data.error || 'No response';
+    contentEl.innerHTML = formatText(fullText);
     histories.claude.push({ role: 'assistant', content: fullText });
+    scrollPanel('claude');
   } catch(e) {
     contentEl.textContent = 'Error: ' + e.message;
   }
