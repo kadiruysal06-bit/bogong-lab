@@ -1,4 +1,4 @@
-​<!DOCTYPE html>
+<!DOCTYPE html>
 
 <html lang="en">
 <head>
@@ -1080,7 +1080,7 @@ function renderContextTags() {
     return;
   }
   container.innerHTML = contextFiles.map(function(f) {
-    return '<span class="context-tag">' + f + '<span class="context-tag-remove" onclick="removeContext(\'' + f + '\')">&times;</span></span>';
+    return '<span class="context-tag">' + f + '<span class="context-tag-remove" onclick="removeContext(\'' + f + '\')">x</span></span>';
   }).join('');
 }
 
@@ -1182,12 +1182,13 @@ function formatText(text) {
 }
 
 function escapeHtml(text) {
+var amp = String.fromCharCode(38);
 var lt = String.fromCharCode(60);
 var gt = String.fromCharCode(62);
 return text
-.replace(/&/g, ‘&’)
-.replace(new RegExp(lt, ‘g’), ‘<’)
-.replace(new RegExp(gt, ‘g’), ‘>’);
+.replace(new RegExp(amp, ‘g’), amp+‘amp;’)
+.replace(new RegExp(lt, ‘g’), amp+‘lt;’)
+.replace(new RegExp(gt, ‘g’), amp+‘gt;’);
 }
 
 function scrollPanel(ai) {
