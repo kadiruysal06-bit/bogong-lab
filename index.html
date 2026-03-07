@@ -1035,7 +1035,7 @@ async function analyzeWorkflow() {
     var analysisPrompt = 'You are a business AI analyst. Based on the conversation below, produce a structured workflow analysis. Use these exact headers:\n\nCurrent State:\nFriction Points:\nAI Opportunity:\nRealistic Next Step:\n\nBe specific, honest, and concise. No fluff. If AI is not the right solution for something, say so.\n\nConversation:\n' + conversation;
 
     try {
-        var response = await fetch('/api/chat', {
+        var response = await fetch('/api/summary', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -1169,6 +1169,7 @@ async function analyzeWorkflow() {
 </body>
 
 </html>
+
 
 
 
