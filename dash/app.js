@@ -65,7 +65,7 @@ function removeContext(file) {
 function renderContextTags() {
  var container = document.getElementById('contextTags');
  if (contextFiles.length === 0) {
- container.innerHTML = '<span style="font-size:10px;letter-spacing:2px;color:var(--text-di return;
+ container.innerHTML = '';
  }
  container.innerHTML = contextFiles.map(function(f) {
  return '<span class="context-tag">' + f + '<span class="context-tag-remove" onclick="remo }).join('');
