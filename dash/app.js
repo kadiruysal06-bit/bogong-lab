@@ -4,10 +4,7 @@ var activeAIs = { claude: true, gemini: true, gpt: true };
 var contextFiles = [];
 var histories = { claude: [], gemini: [], gpt: [] };
 var settings = {
- promptClaude: 'You are an expert system architect. You know the Bogong AI projects deeply: Mirrors (bogongai.com), bogongai.net, and House of CB. Be precise, direct, and technical. No fluff.',
- promptGemini: 'You are a rapid creative problem solver and prototyper. Think fast, generate alternatives, be bold with ideas.',
- promptGpt: 'You are a code reviewer and debugging specialist. Find bugs, security issues, and optimization opportunities. Be specific.',
- keyAnthropic: '',
+ promptClaude: 'You are an expert system architect. You know the Bogong AI projects deeply:  promptGemini: 'You are a rapid creative problem solver and prototyper. Think fast, generate promptGpt: 'You are a code reviewer and debugging specialist. Find bugs, security issues, a keyAnthropic: '',
  keyGemini: '',
  keyOpenAI: ''
 };
@@ -65,12 +62,10 @@ function removeContext(file) {
 function renderContextTags() {
  var container = document.getElementById('contextTags');
  if (contextFiles.length === 0) {
- container.innerHTML = '<span style="font-size:10px;letter-spacing:2px;color:var(--text-dim);font-family:\'DM Mono\',monospace;">No files selected</span>';
- return;
+ container.innerHTML = '<span style="font-size:10px;letter-spacing:2px;color:var(--text-di return;
  }
  container.innerHTML = contextFiles.map(function(f) {
- return '<span class="context-tag">' + f + '<span class="context-tag-remove" onclick="removeContext(\'' + f + '\')">x</span></span>';
- }).join('');
+ return '<span class="context-tag">' + f + '<span class="context-tag-remove" onclick="remo }).join('');
 }
 // AI TOGGLE
 function toggleAI(ai) {
@@ -89,8 +84,7 @@ async function sendMessage() {
  if (!text) return;
  input.value = '';
  input.style.height = 'auto';
- var contextNote = contextFiles.length > 0 ? '\n\n[Context files: ' + contextFiles.join(', ') + ']' : '';
- var fullText = text + contextNote;
+ var contextNote = contextFiles.length > 0 ? '\n\n[Context files: ' + contextFiles.join(', ' var fullText = text + contextNote;
  var promises = [];
  if (activeAIs.claude) promises.push(callClaude(fullText));
  if (activeAIs.gemini) promises.push(callGemini(fullText));
@@ -104,8 +98,7 @@ function addUserMsg(ai, text) {
  if (empty) empty.remove();
  var msg = document.createElement('div');
  msg.className = 'msg user';
- msg.innerHTML = '<div class="msg-role">You</div><div class="msg-content">' + escapeHtml(text.split('\n\n[Context')[0]) + '</div>';
- container.appendChild(msg);
+ msg.innerHTML = '<div class="msg-role">You</div><div class="msg-content">' + escapeHtml(tex container.appendChild(msg);
  histories[ai].push({ role: 'user', content: text });
  scrollPanel(ai);
  return msg;
@@ -115,8 +108,7 @@ function addAIMsg(ai) {
  var container = document.getElementById('messages-' + ai);
  var msg = document.createElement('div');
  msg.className = 'msg';
- msg.innerHTML = '<div class="msg-role">' + ai.charAt(0).toUpperCase() + ai.slice(1) + '</div><div class="msg-content"><div class="loader"><span></span><span></span><span></span></div></div>';
- container.appendChild(msg);
+ msg.innerHTML = '<div class="msg-role">' + ai.charAt(0).toUpperCase() + ai.slice(1) + '</di container.appendChild(msg);
  scrollPanel(ai);
  return msg.querySelector('.msg-content');
 }
@@ -178,8 +170,7 @@ async function callClaude(text) {
  addUserMsg('claude', text);
  var contentEl = addAIMsg('claude');
  try {
- var msgs = histories.claude.map(function(m) { return { role: m.role, content: m.content }; });
- var response = await fetch('/api/claude', {
+ var msgs = histories.claude.map(function(m) { return { role: m.role, content: m.content } var response = await fetch('/api/claude', {
  method: 'POST',
  headers: { 'Content-Type': 'application/json' },
  body: JSON.stringify({
@@ -207,9 +198,7 @@ async function callClaude(text) {
  var parsed = JSON.parse(data);
  if (parsed.type === 'content_block_delta' && parsed.delta && parsed.delta.text) {
  fullText += parsed.delta.text;
- var current = contentEl.innerHTML.replace('<span class="streaming-cursor"></span>', '');
- contentEl.innerHTML = formatText(fullText) + '<span class="streaming-cursor"></span>';
- scrollPanel('claude');
+ var current = contentEl.innerHTML.replace('<span class="streaming-cursor"></spa contentEl.innerHTML = formatText(fullText) + '<span class="streaming-cursor"></ scrollPanel('claude');
  }
  } catch(e) {}
  }
@@ -228,8 +217,7 @@ async function callGemini(text) {
  var contentEl = addAIMsg('gemini');
  try {
  var msgs = histories.gemini.map(function(m) {
- return { role: m.role === 'assistant' ? 'model' : 'user', parts: [{ text: m.content }] };
- });
+ return { role: m.role === 'assistant' ? 'model' : 'user', parts: [{ text: m.content }]  });
  var response = await fetch('/api/gemini', {
  method: 'POST',
  headers: { 'Content-Type': 'application/json' },
@@ -254,8 +242,7 @@ async function callGemini(text) {
  var t = parsed.candidates?.[0]?.content?.parts?.[0]?.text;
  if (t) {
  fullText += t;
- contentEl.innerHTML = formatText(fullText) + '<span class="streaming-cursor"></span>';
- scrollPanel('gemini');
+ contentEl.innerHTML = formatText(fullText) + '<span class="streaming-cursor"></ scrollPanel('gemini');
  }
  } catch(e) {}
  }
@@ -297,8 +284,7 @@ async function callGPT(text) {
  var t = parsed.choices?.[0]?.delta?.content;
  if (t) {
  fullText += t;
- contentEl.innerHTML = formatText(fullText) + '<span class="streaming-cursor"></span>';
- scrollPanel('gpt');
+ contentEl.innerHTML = formatText(fullText) + '<span class="streaming-cursor"></ scrollPanel('gpt');
  }
  } catch(e) {}
  }
@@ -330,8 +316,7 @@ function copyPanel(ai) {
 function clearPanel(ai) {
  histories[ai] = [];
  var container = document.getElementById('messages-' + ai);
- container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">*</div><div class="empty-state-text">Waiting</div></div>';
-}
+ container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">*</div><div c}
 // SETTINGS
 function openSettings() {
  loadSettings();
@@ -568,5 +553,7 @@ function loop() {
  requestAnimationFrame(loop);
 }
 loop();
-loadSettings();
-renderContextTags();
+document.addEventListener('DOMContentLoaded', function() {
+ loadSettings();
+ renderContextTags();
+});
