@@ -63,12 +63,20 @@ function removeContext(file) {
  });
 }
 function renderContextTags() {
- var container = document.getElementById('contextTags');
- if (contextFiles.length === 0) {
- container.innerHTML = '';
- }
- container.innerHTML = contextFiles.map(function(f) {
- return '<span class="context-tag">' + f + '<span class="context-tag-remove" onclick="remo }).join('');
+  var container = document.getElementById('contextTags');
+  if (!container) return;
+  container.innerHTML = '';
+  contextFiles.forEach(function(f) {
+    var span = document.createElement('span');
+    span.className = 'context-tag';
+    span.textContent = f;
+    var btn = document.createElement('span');
+    btn.className = 'context-tag-remove';
+    btn.textContent = 'x';
+    btn.onclick = function() { removeContext(f); };
+    span.appendChild(btn);
+    container.appendChild(span);
+  });
 }
 // AI TOGGLE
 function toggleAI(ai) {
