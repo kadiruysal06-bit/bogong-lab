@@ -4,9 +4,12 @@ var activeAIs = { claude: true, gemini: true, gpt: true };
 var contextFiles = [];
 var histories = { claude: [], gemini: [], gpt: [] };
 var settings = {
- promptClaude: 'You are an expert system architect. You know the Bogong AI projects deeply:  promptGemini: 'You are a rapid creative problem solver and prototyper. Think fast, generate promptGpt: 'You are a code reviewer and debugging specialist. Find bugs, security issues, a keyAnthropic: '',
- keyGemini: '',
- keyOpenAI: ''
+promptClaude: 'You are an expert system architect. You know the Bogong AI projects deeply: Mirrors (bogongai.com), bogongai.net, and House of CB. Be precise, direct, and technical. No fluff.',
+promptGemini: 'You are a rapid creative problem solver and prototyper. Think fast, generate alternatives, be bold with ideas.',
+promptGpt: 'You are a code reviewer and debugging specialist. Find bugs, security issues, and optimization opportunities. Be specific.',
+keyAnthropic: '',
+keyGemini: '',
+keyOpenAI: ''
 };
 // LOAD SETTINGS
 function loadSettings() {
