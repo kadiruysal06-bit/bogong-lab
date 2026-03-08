@@ -485,6 +485,7 @@
             background: rgba(200,169,110,0.15);
             border: 1px solid rgba(200,169,110,0.3);
             color: var(--gold);
+            padding: 3px;
         }
 
         .msg-avatar.user-av {
@@ -936,7 +937,15 @@
         <div class="chat-box reveal">
             <div class="chat-messages" id="chatMessages">
                 <div class="msg bot">
-                    <div class="msg-avatar bot">B</div>
+                    <div class="msg-avatar bot">
+                        <svg class="butterfly-svg" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <g class="wing-left"><ellipse cx="14" cy="18" rx="12" ry="8" fill="rgba(200,169,110,0.85)"/><ellipse cx="13" cy="30" rx="9" ry="6" fill="rgba(200,169,110,0.6)"/></g>
+                            <g class="wing-right"><ellipse cx="34" cy="18" rx="12" ry="8" fill="rgba(200,169,110,0.85)"/><ellipse cx="35" cy="30" rx="9" ry="6" fill="rgba(200,169,110,0.6)"/></g>
+                            <ellipse cx="24" cy="24" rx="2" ry="10" fill="rgba(200,169,110,1)"/>
+                            <line x1="22" y1="14" x2="17" y2="8" stroke="rgba(200,169,110,0.8)" stroke-width="1" stroke-linecap="round"/><circle cx="17" cy="8" r="1.2" fill="rgba(200,169,110,0.8)"/>
+                            <line x1="26" y1="14" x2="31" y2="8" stroke="rgba(200,169,110,0.8)" stroke-width="1" stroke-linecap="round"/><circle cx="31" cy="8" r="1.2" fill="rgba(200,169,110,0.8)"/>
+                        </svg>
+                    </div>
                     <div class="msg-bubble">Hello. I'm the Bogong AI Lab assistant. Tell me about your business — what you do, what's taking too much time, or what you've been trying to automate. I'll give you an honest picture of what's possible.</div>
                 </div>
             </div>
@@ -1025,6 +1034,7 @@
 <script>
     var API_BASE = "";
     var chatHistory = [];
+    var BUTTERFLY_SVG = '<svg class="butterfly-svg" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><g class="wing-left"><ellipse cx="14" cy="18" rx="12" ry="8" fill="rgba(200,169,110,0.85)"/><ellipse cx="13" cy="30" rx="9" ry="6" fill="rgba(200,169,110,0.6)"/></g><g class="wing-right"><ellipse cx="34" cy="18" rx="12" ry="8" fill="rgba(200,169,110,0.85)"/><ellipse cx="35" cy="30" rx="9" ry="6" fill="rgba(200,169,110,0.6)"/></g><ellipse cx="24" cy="24" rx="2" ry="10" fill="rgba(200,169,110,1)"/><line x1="22" y1="14" x2="17" y2="8" stroke="rgba(200,169,110,0.8)" stroke-width="1" stroke-linecap="round"/><circle cx="17" cy="8" r="1.2" fill="rgba(200,169,110,0.8)"/><line x1="26" y1="14" x2="31" y2="8" stroke="rgba(200,169,110,0.8)" stroke-width="1" stroke-linecap="round"/><circle cx="31" cy="8" r="1.2" fill="rgba(200,169,110,0.8)"/></svg>';
 
     var SYSTEM_PROMPT = "";
    var summaryTimer = null;
@@ -1110,7 +1120,11 @@ async function analyzeWorkflow() {
         div.className = 'msg ' + (role === 'user' ? 'user' : 'bot');
         var avatar = document.createElement('div');
         avatar.className = 'msg-avatar ' + (role === 'user' ? 'user-av' : 'bot');
-        avatar.textContent = role === 'user' ? 'You' : 'B';
+        if (role === 'user') {
+            avatar.textContent = 'You';
+        } else {
+            avatar.innerHTML = BUTTERFLY_SVG;
+        }
         var bubble = document.createElement('div');
         bubble.className = 'msg-bubble';
         bubble.textContent = text;
@@ -1127,7 +1141,7 @@ async function analyzeWorkflow() {
         div.className = 'msg bot';
         var avatar = document.createElement('div');
         avatar.className = 'msg-avatar bot';
-        avatar.textContent = 'B';
+        avatar.innerHTML = BUTTERFLY_SVG;
         var bubble = document.createElement('div');
         bubble.className = 'msg-bubble';
         bubble.innerHTML = '<div class="typing"><span></span><span></span><span></span></div>';
