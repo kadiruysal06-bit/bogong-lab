@@ -20,6 +20,7 @@ if (lastMessage && lastMessage.content && lastMessage.content.length > 2000) {
 if (body.messages.length > 20) {
     return res.status(400).json({ error: 'Conversation limit reached' });
 }
+
 try {
 var response = await fetch('https://api.anthropic.com/v1/messages', {
 method: 'POST',
@@ -31,19 +32,47 @@ headers: {
 body: JSON.stringify({
 model: 'claude-opus-4-5',
 max_tokens: 600,
+stream: true,
 system: system,
 messages: messages
 })
 });
 
-var data = await response.json();
-if (!data.content) return res.status(500).json({ error: 'Claude error', details: data });
-return res.status(200).json({ result: data.content[0].text });
+res.setHeader('Content-Type', 'text/event-stream');
+res.setHeader('Cache-Control', 'no-cache');
+res.setHeader('Transfer-Encoding', 'chunked');
+
+const reader = response.body.getReader();
+const decoder = new TextDecoder();
+
+while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    const chunk = decoder.decode(value, { stream: true });
+    // Forward only content_block_delta events with text deltas
+    const lines = chunk.split('\n');
+    for (const line of lines) {
+        if (line.startsWith('data: ')) {
+            const jsonStr = line.slice(6).trim();
+            if (jsonStr === '[DONE]') continue;
+            try {
+                const evt = JSON.parse(jsonStr);
+                if (evt.type === 'content_block_delta' && evt.delta && evt.delta.type === 'text_delta') {
+                    res.write('data: ' + JSON.stringify({ text: evt.delta.text }) + '\n\n');
+                }
+                if (evt.type === 'message_stop') {
+                    res.write('data: [DONE]\n\n');
+                }
+            } catch (_) {}
+        }
+    }
+}
+
+res.end();
 
 } catch (err) {
-return res.status(500).json({ error: err.message });
+res.write('data: ' + JSON.stringify({ error: err.message }) + '\n\n');
+res.end();
 }
 
 }
-
-

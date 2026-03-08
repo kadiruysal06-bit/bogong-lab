@@ -1074,15 +1074,48 @@ function scheduleSummary() {
                     system: SYSTEM_PROMPT
                 })
             });
-            var data = await response.json();
+
             typingEl.remove();
             btnSend.classList.remove('thinking');
-            var reply = data.result || data.error || 'Something went wrong.';
-            appendMessage('bot', reply);
+
+            // Create bot message bubble for streaming
+            var botDiv = appendMessage('bot', '');
+            var bubble = botDiv.querySelector('.msg-bubble');
+            var reply = '';
+
+            var reader = response.body.getReader();
+            var decoder = new TextDecoder();
+            var buffer = '';
+
+            while (true) {
+                var chunk = await reader.read();
+                if (chunk.done) break;
+                buffer += decoder.decode(chunk.value, { stream: true });
+                var lines = buffer.split('\n');
+                buffer = lines.pop(); // keep incomplete line
+                for (var i = 0; i < lines.length; i++) {
+                    var line = lines[i].trim();
+                    if (!line.startsWith('data: ')) continue;
+                    var payload = line.slice(6).trim();
+                    if (payload === '[DONE]') break;
+                    try {
+                        var evt = JSON.parse(payload);
+                        if (evt.text) {
+                            reply += evt.text;
+                            bubble.textContent = reply;
+                            bubble.scrollIntoView({ block: 'end' });
+                        }
+                        if (evt.error) {
+                            bubble.textContent = 'Error: ' + evt.error;
+                        }
+                    } catch (_) {}
+                }
+            }
+
             chatHistory.push({ role: 'assistant', content: reply });
             if (chatHistory.length >= 2) {
-    document.getElementById('analyze-section').style.display = 'block';
-}
+                document.getElementById('analyze-section').style.display = 'block';
+            }
         } catch(e) {
             typingEl.remove();
             btnSend.classList.remove('thinking');
