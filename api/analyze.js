@@ -20,7 +20,7 @@ Identify where AI can add the most value.
 ## Realistic Next Step
 Suggest one concrete, actionable next step.
 
-Be concise and specific.`;
+Be concise and specific. Respond in same language as the conversation.`;
 
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
