@@ -532,16 +532,47 @@
         .btn-send {
             background: transparent;
             border: 1px solid rgba(200,169,110,0.35);
-            color: var(--gold); padding: 10px 24px;
+            color: var(--gold); padding: 10px 18px;
             font-family: 'DM Sans', sans-serif;
             font-size: 11px; letter-spacing: 2px;
             text-transform: uppercase; cursor: pointer;
             transition: all 0.3s; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
         }
 
         .btn-send:hover {
             background: rgba(200,169,110,0.08);
             border-color: var(--gold);
+        }
+
+        .butterfly-svg {
+            width: 28px; height: 28px;
+            display: block;
+        }
+
+        .wing-left, .wing-right {
+            transform-origin: center;
+            animation: flapIdle 2.4s ease-in-out infinite;
+        }
+
+        .wing-right {
+            animation-direction: alternate-reverse;
+        }
+
+        @keyframes flapIdle {
+            0%, 100% { transform: scaleX(1); }
+            50% { transform: scaleX(0.15); }
+        }
+
+        .btn-send.thinking .wing-left,
+        .btn-send.thinking .wing-right {
+            animation-name: flapFast;
+            animation-duration: 0.35s;
+        }
+
+        @keyframes flapFast {
+            0%, 100% { transform: scaleX(1); }
+            50% { transform: scaleX(0.1); }
         }
 
         .chat-disclaimer {
@@ -911,7 +942,27 @@
             </div>
             <div class="chat-input-area">
                 <textarea class="chat-input" id="chatInput" placeholder="Describe your business or ask a question..." rows="1"></textarea>
-                <button class="btn-send" onclick="sendMessage()">Send</button>
+                <button class="btn-send" id="btnSend" onclick="sendMessage()" title="Send">
+                    <svg class="butterfly-svg" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Left wings -->
+                        <g class="wing-left">
+                            <ellipse cx="14" cy="18" rx="12" ry="8" fill="rgba(200,169,110,0.85)" />
+                            <ellipse cx="13" cy="30" rx="9" ry="6" fill="rgba(200,169,110,0.6)" />
+                        </g>
+                        <!-- Right wings -->
+                        <g class="wing-right">
+                            <ellipse cx="34" cy="18" rx="12" ry="8" fill="rgba(200,169,110,0.85)" />
+                            <ellipse cx="35" cy="30" rx="9" ry="6" fill="rgba(200,169,110,0.6)" />
+                        </g>
+                        <!-- Body -->
+                        <ellipse cx="24" cy="24" rx="2" ry="10" fill="rgba(200,169,110,1)" />
+                        <!-- Antennae -->
+                        <line x1="22" y1="14" x2="17" y2="8" stroke="rgba(200,169,110,0.8)" stroke-width="1" stroke-linecap="round"/>
+                        <circle cx="17" cy="8" r="1.2" fill="rgba(200,169,110,0.8)"/>
+                        <line x1="26" y1="14" x2="31" y2="8" stroke="rgba(200,169,110,0.8)" stroke-width="1" stroke-linecap="round"/>
+                        <circle cx="31" cy="8" r="1.2" fill="rgba(200,169,110,0.8)"/>
+                    </svg>
+                </button>
             </div>
         </div>
         <div id="analyze-section" style="display:none;text-align:center;margin-top:20px;">
@@ -1001,6 +1052,8 @@ function scheduleSummary() {
         chatHistory.push({ role: 'user', content: text });
         scheduleSummary();
         var typingEl = appendTyping();
+        var btnSend = document.getElementById('btnSend');
+        btnSend.classList.add('thinking');
 
         try {
             var response = await fetch('/api/chat', {
@@ -1013,6 +1066,7 @@ function scheduleSummary() {
             });
             var data = await response.json();
             typingEl.remove();
+            btnSend.classList.remove('thinking');
             var reply = data.result || data.error || 'Something went wrong.';
             appendMessage('bot', reply);
             chatHistory.push({ role: 'assistant', content: reply });
@@ -1021,6 +1075,7 @@ function scheduleSummary() {
 }
         } catch(e) {
             typingEl.remove();
+            btnSend.classList.remove('thinking');
             appendMessage('bot', 'Connection error. Please try again or email studio@bogongai.net');
         }
     }
