@@ -6,6 +6,14 @@ module.exports = async function handler(req, res) {
   try {
     const { messages } = req.body;
 
+    // Normalize to Claude API format: array of {role, content} with role 'user' or 'assistant'
+    const normalizedMessages = (messages || []).map(m => ({
+      role: m.role === 'assistant' ? 'assistant' : 'user',
+      content: String(m.content)
+    }));
+
+    console.log('[analyze] incoming messages:', JSON.stringify(normalizedMessages, null, 2));
+
     const system = `You are a workflow analyst. Analyze the conversation and return a structured report with exactly these four sections:
 
 ## Current State
@@ -33,7 +41,7 @@ Be concise and specific. Respond in same language as the conversation.`;
         model: 'claude-haiku-4-5-20251001',
         max_tokens: 1500,
         system: system,
-        messages: messages
+        messages: normalizedMessages
       })
     });
 
