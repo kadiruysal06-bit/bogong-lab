@@ -46,9 +46,13 @@ Be concise and specific. Respond in same language as the conversation.`;
     });
 
     const data = await response.json();
+    console.log('[analyze] raw Claude response:', JSON.stringify(data, null, 2));
+
     const result = data.content && data.content[0] && data.content[0].text
       ? data.content[0].text
       : 'No response';
+
+    console.log('[analyze] extracted text:', result);
 
     res.status(200).json({ result });
 
