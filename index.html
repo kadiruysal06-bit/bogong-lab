@@ -1102,8 +1102,12 @@ function scheduleSummary() {
                         var evt = JSON.parse(payload);
                         if (evt.text) {
                             reply += evt.text;
-                            bubble.textContent = reply;
-                            bubble.scrollIntoView({ block: 'end' });
+                            var chars = evt.text.split('');
+                            for (var c = 0; c < chars.length; c++) {
+                                await new Promise(function(resolve) { setTimeout(resolve, 18); });
+                                bubble.textContent += chars[c];
+                                bubble.scrollIntoView({ block: 'end' });
+                            }
                         }
                         if (evt.error) {
                             bubble.textContent = 'Error: ' + evt.error;
