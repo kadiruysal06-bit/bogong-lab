@@ -1093,18 +1093,12 @@ async function analyzeWorkflow() {
     document.getElementById('analyze-result').style.display = 'block';
     document.getElementById('analyze-content').innerHTML = '<div class="typing"><span></span><span></span><span></span></div>';
     
-    var conversation = chatHistory.map(function(m) {
-        return m.role.toUpperCase() + ': ' + m.content;
-    }).join('\n\n');
-
-    var analysisPrompt = 'You are a business AI analyst. Based on the conversation below, produce a structured workflow analysis. Use these exact headers:\n\nCurrent State:\nFriction Points:\nAI Opportunity:\nRealistic Next Step:\n\nBe specific, honest, and concise. No fluff. If AI is not the right solution for something, say so.\n\nConversation:\n' + conversation;
-
     try {
         var response = await fetch('/api/analyze', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                messages: [{ role: 'user', content: analysisPrompt }]
+                messages: chatHistory
             })
         });
         var data = await response.json();
