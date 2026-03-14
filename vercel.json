@@ -1,0 +1,7 @@
+{
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "/api/$1" },
+    { "source": "/dash/app.js", "destination": "/dash/app.js" },
+    { "source": "/dash", "destination": "/dash/index.html" }
+  ]
+}
