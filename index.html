@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bogong AI Solutions Lab — AI Architecture & Analytics</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --ink: #0f0f12;
+            --ink-soft: #1c1c22;
+            --ink-mid: #2a2a32;
+            --slate: #f4f3f0;
+            --white: #fefefe;
+            --blue: #1a3a5c;
+            --blue-mid: #2d5986;
+            --blue-light: #4a8ab5;
+            --gold: #c8a96e;
+            --gold-dim: rgba(200,169,110,0.25);
+            --gold-glow: rgba(200,169,110,0.12);
+            --text: #1a1a20;
+            --text-mid: #4a4a5a;
+            --text-soft: #8a8a9a;
+            --border: rgba(255,255,255,0.08);
+            --border-light: rgba(26,58,92,0.12);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            background: var(--ink);
+            color: rgba(255,255,255,0.82);
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 300;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        nav {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 20px 60px;
+            background: rgba(15,15,18,0.92);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .nav-logo {
+            display: flex; align-items: center; gap: 14px;
+            text-decoration: none;
+        }
+
+        .nav-logo img { height: 36px; width: auto; filter: brightness(0) invert(1); opacity: 0.85; }
+
+        .nav-wordmark {
+            font-family: 'DM Mono', monospace;
+            font-size: 11px; font-weight: 300;
+            letter-spacing: 4px; color: rgba(255,255,255,0.5);
+            text-transform: uppercase;
+        }
+
+        .nav-links {
+            display: flex; align-items: center; gap: 36px;
+        }
+
+        .nav-links a {
+            font-size: 11px; letter-spacing: 2px;
+            color: rgba(255,255,255,0.4); text-decoration: none;
+            text-transform: uppercase; transition: color 0.2s;
+        }
+
+        .nav-links a:hover { color: var(--gold); }
+
+        .btn-nav {
+            background: transparent; color: var(--gold);
+            border: 1px solid rgba(200,169,110,0.4);
+            padding: 10px 28px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 11px; letter-spacing: 2px;
+            text-transform: uppercase; cursor: pointer;
+            transition: all 0.3s; text-decoration: none;
+        }
+
+        .btn-nav:hover {
+            background: rgba(200,169,110,0.08);
+            border-color: var(--gold);
+        }
+
+        .hero {
+            min-height: 100vh;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            padding: 140px 60px 100px;
+            position: relative; overflow: hidden;
+            text-align: center;
+        }
+
+        .hero-bg {
+            position: absolute; inset: 0; pointer-events: none;
+            background:
+                radial-gradient(ellipse 80% 50% at 50% 100%, rgba(26,58,92,0.18) 0%, transparent 60%),
+                radial-gradient(ellipse 40% 30% at 20% 20%, rgba(200,169,110,0.06) 0%, transparent 50%),
+                radial-gradient(ellipse 30% 40% at 80% 10%, rgba(74,138,181,0.08) 0%, transparent 50%);
+        }
+
+        .hero-grid-lines {
+            position: absolute; inset: 0; pointer-events: none;
+            background-image:
+                linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+            background-size: 80px 80px;
+            mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 0%, transparent 70%);
+        }
+
+        .hero-tag {
+            font-family: 'DM Mono', monospace;
+            font-size: 10px; letter-spacing: 6px;
+            color: var(--gold); opacity: 0.7;
+            text-transform: uppercase; margin-bottom: 32px;
+            opacity: 0; animation: rise 0.8s ease forwards 0.2s;
+        }
+
+        .hero-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(42px, 6.5vw, 82px);
+            font-weight: 300; line-height: 1.1;
+            color: var(--white); max-width: 900px;
+            opacity: 0; animation: rise 1s ease forwards 0.4s;
+        }
+
+        .hero-title em { font-style: italic; color: var(--gold); }
+
+        .hero-sub {
+            font-size: 17px; font-weight: 300;
+            color: rgba(255,255,255,0.45);
+            max-width: 540px; margin-top: 28px; line-height: 1.8;
+            opacity: 0; animation: rise 1s ease forwards 0.6s;
+        }
+
+        .hero-cta {
+            display: flex; gap: 16px; margin-top: 52px;
+            opacity: 0; animation: rise 1s ease forwards 0.8s;
+        }
+
+        .btn-primary {
+            background: transparent; color: var(--white);
+            border: 1px solid rgba(255,255,255,0.25);
+            padding: 16px 42px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 11px; letter-spacing: 3px;
+            text-transform: uppercase; cursor: pointer;
+            transition: all 0.3s; text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary:hover {
+            background: rgba(255,255,255,0.06);
+            border-color: rgba(255,255,255,0.5);
+        }
+
+        .btn-gold {
+            background: transparent; color: var(--gold);
+            border: 1px solid rgba(200,169,110,0.5);
+            padding: 16px 42px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 11px; letter-spacing: 3px;
+            text-transform: uppercase; cursor: pointer;
+            transition: all 0.3s; text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-gold:hover {
+            background: rgba(200,169,110,0.1);
+            border-color: var(--gold);
+        }
+
+        .hero-scroll {
+            position: absolute; bottom: 48px; left: 50%;
+            transform: translateX(-50%);
+            display: flex; flex-direction: column; align-items: center; gap: 8px;
+            opacity: 0.3;
+            animation: rise 1s ease forwards 1.2s;
+        }
+
+        .hero-scroll span {
+            font-size: 9px; letter-spacing: 4px;
+            text-transform: uppercase; color: rgba(255,255,255,0.4);
+        }
+
+        .scroll-line {
+            width: 1px; height: 40px;
+            background: linear-gradient(to bottom, rgba(255,255,255,0.3), transparent);
+        }
+
+        section { padding: 110px 60px; }
+
+        .section-tag {
+            font-family: 'DM Mono', monospace;
+            font-size: 10px; letter-spacing: 6px;
+            text-transform: uppercase; color: var(--gold);
+            opacity: 0.7; margin-bottom: 20px;
+        }
+
+        .what { background: var(--ink-soft); border-top: 1px solid var(--border); }
+        .what-inner { max-width: 1100px; margin: 0 auto; }
+        .what-header { margin-bottom: 64px; }
+
+        .what-header h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(36px, 4vw, 56px);
+            font-weight: 300; color: var(--white);
+            line-height: 1.15; max-width: 700px;
+        }
+
+        .what-header h2 em { font-style: italic; color: var(--gold); }
+
+        .what-cards { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 2px; }
+
+        .what-card {
+            background: var(--ink-mid); padding: 40px 36px;
+            border-top: 2px solid transparent; transition: border-color 0.3s;
+        }
+
+        .what-card:hover { border-top-color: var(--gold); }
+
+        .card-num {
+            font-family: 'DM Mono', monospace;
+            font-size: 11px; letter-spacing: 3px;
+            color: var(--gold); opacity: 0.5; margin-bottom: 20px;
+        }
+
+        .what-card h4 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 24px; font-weight: 400;
+            color: var(--white); margin-bottom: 14px;
+        }
+
+        .what-card p { font-size: 14px; color: rgba(255,255,255,0.45); line-height: 1.8; }
+
+        .lab-statement {
+            background: var(--ink);
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+            padding: 80px 60px; text-align: center;
+        }
+
+        .lab-statement p {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(28px, 3.5vw, 46px);
+            font-weight: 300; font-style: italic;
+            color: rgba(255,255,255,0.7);
+            max-width: 800px; margin: 0 auto; line-height: 1.4;
+        }
+
+        .lab-statement p em { font-style: normal; color: var(--gold); }
+
+        .build { background: var(--ink-soft); border-top: 1px solid var(--border); }
+        .build-inner { max-width: 1100px; margin: 0 auto; }
+        .build-header { margin-bottom: 60px; }
+
+        .build-header h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(36px, 4vw, 56px);
+            font-weight: 300; color: var(--white); line-height: 1.15;
+        }
+
+        .build-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; }
+        .build-col { background: var(--ink-mid); padding: 40px 36px; }
+
+        .build-col-label {
+            font-family: 'DM Mono', monospace;
+            font-size: 10px; letter-spacing: 5px;
+            text-transform: uppercase; color: var(--blue-light);
+            margin-bottom: 28px; padding-bottom: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .build-items { display: flex; flex-direction: column; gap: 18px; }
+        .build-item { display: flex; gap: 16px; align-items: flex-start; }
+
+        .build-item-dot {
+            width: 4px; height: 4px; border-radius: 50%;
+            background: var(--gold); margin-top: 8px; flex-shrink: 0; opacity: 0.6;
+        }
+
+        .build-item-text h5 { font-size: 15px; font-weight: 400; color: rgba(255,255,255,0.8); margin-bottom: 4px; }
+        .build-item-text p { font-size: 13px; color: rgba(255,255,255,0.35); line-height: 1.6; }
+
+        .case-study { background: var(--ink); border-top: 1px solid var(--border); }
+
+        .case-inner {
+            max-width: 1100px; margin: 0 auto;
+            display: grid; grid-template-columns: 1fr 1fr; gap: 80px;
+            align-items: center;
+        }
+
+        .case-left h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(32px, 3.5vw, 48px);
+            font-weight: 300; color: var(--white);
+            line-height: 1.2; margin-bottom: 24px;
+        }
+
+        .case-left h2 em { font-style: italic; color: var(--gold); }
+        .case-left p { font-size: 15px; color: rgba(255,255,255,0.45); line-height: 1.8; margin-bottom: 16px; }
+
+        .case-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; margin-top: 36px; }
+        .case-stat { background: var(--ink-mid); padding: 24px 28px; }
+
+        .case-stat-num {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 36px; font-weight: 300;
+            color: var(--gold); line-height: 1; margin-bottom: 6px;
+        }
+
+        .case-stat-label { font-size: 11px; letter-spacing: 2px; color: rgba(255,255,255,0.3); text-transform: uppercase; }
+
+        .case-right { background: var(--ink-mid); border: 1px solid var(--border); padding: 40px; }
+
+        .case-preview-tag {
+            font-family: 'DM Mono', monospace;
+            font-size: 10px; letter-spacing: 4px;
+            text-transform: uppercase; color: var(--gold); opacity: 0.6; margin-bottom: 20px;
+        }
+
+        .case-preview-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 28px; font-weight: 300; color: var(--white); margin-bottom: 16px;
+        }
+
+        .case-preview-text { font-size: 14px; color: rgba(255,255,255,0.4); line-height: 1.8; margin-bottom: 28px; }
+
+        .case-preview-link {
+            display: inline-flex; align-items: center; gap: 10px;
+            font-size: 11px; letter-spacing: 3px;
+            text-transform: uppercase; color: var(--gold);
+            text-decoration: none; transition: gap 0.3s;
+        }
+
+        .case-preview-link:hover { gap: 16px; }
+        .case-preview-link::after { content: '→'; }
+
+        .chat-section { background: var(--ink-soft); border-top: 1px solid var(--border); }
+        .chat-inner { max-width: 800px; margin: 0 auto; }
+        .chat-header { text-align: center; margin-bottom: 48px; }
+
+        .chat-header h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(32px, 3.5vw, 48px);
+            font-weight: 300; color: var(--white); margin-bottom: 14px;
+        }
+
+        .chat-header p { font-size: 15px; color: rgba(255,255,255,0.4); max-width: 480px; margin: 0 auto; line-height: 1.7; }
+
+        .chat-box { background: var(--ink-mid); border: 1px solid var(--border); }
+
+        .chat-messages {
+            padding: 28px 32px; min-height: 280px; max-height: 400px;
+            overflow-y: auto; display: flex; flex-direction: column; gap: 20px;
+        }
+
+        .chat-messages::-webkit-scrollbar { width: 4px; }
+        .chat-messages::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); }
+
+        .msg { display: flex; gap: 14px; align-items: flex-start; }
+        .msg.user { flex-direction: row-reverse; }
+
+        .msg-avatar {
+            width: 28px; height: 28px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 10px; letter-spacing: 1px; flex-shrink: 0; margin-top: 2px;
+        }
+
+        .msg-avatar.bot { background: rgba(200,169,110,0.15); border: 1px solid rgba(200,169,110,0.3); color: var(--gold); }
+        .msg-avatar.user-av { background: rgba(74,138,181,0.15); border: 1px solid rgba(74,138,181,0.3); color: var(--blue-light); }
+
+        .msg-bubble { max-width: 75%; padding: 14px 18px; font-size: 14px; line-height: 1.7; }
+        .msg.bot .msg-bubble { background: rgba(255,255,255,0.04); border: 1px solid var(--border); color: rgba(255,255,255,0.75); }
+        .msg.user .msg-bubble { background: rgba(26,58,92,0.3); border: 1px solid rgba(74,138,181,0.2); color: rgba(255,255,255,0.8); text-align: right; }
+
+        .chat-input-area { border-top: 1px solid var(--border); padding: 16px 20px; display: flex; gap: 12px; align-items: flex-end; }
+
+        .chat-input {
+            flex: 1; background: transparent; border: none;
+            font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 300;
+            color: rgba(255,255,255,0.8); outline: none; resize: none; line-height: 1.5;
+            padding: 8px 0; max-height: 120px;
+        }
+
+        .chat-input::placeholder { color: rgba(255,255,255,0.2); }
+
+        .btn-send {
+            background: transparent; border: 1px solid rgba(200,169,110,0.35);
+            color: var(--gold); padding: 10px 24px;
+            font-family: 'DM Sans', sans-serif; font-size: 11px; letter-spacing: 2px;
+            text-transform: uppercase; cursor: pointer; transition: all 0.3s; flex-shrink: 0;
+        }
+
+        .btn-send:hover { background: rgba(200,169,110,0.08); border-color: var(--gold); }
+        .chat-disclaimer { text-align: center; margin-top: 16px; font-size: 11px; color: rgba(255,255,255,0.2); letter-spacing: 1px; }
+
+        .contact { background: var(--ink); border-top: 1px solid var(--border); }
+
+        .contact-inner {
+            max-width: 1100px; margin: 0 auto;
+            display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: start;
+        }
+
+        .contact-left h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(32px, 3.5vw, 48px);
+            font-weight: 300; color: var(--white); margin-bottom: 20px; line-height: 1.2;
+        }
+
+        .contact-left p { font-size: 15px; color: rgba(255,255,255,0.4); line-height: 1.8; margin-bottom: 32px; }
+
+        .contact-email { font-family: 'DM Mono', monospace; font-size: 14px; letter-spacing: 2px; color: var(--gold); text-decoration: none; transition: opacity 0.2s; }
+        .contact-email:hover { opacity: 0.7; }
+
+        .contact-right { background: var(--ink-mid); border: 1px solid var(--border); padding: 40px; }
+        .form-group { margin-bottom: 20px; }
+
+        .form-label { font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: rgba(255,255,255,0.3); display: block; margin-bottom: 8px; }
+
+        .form-input, .form-textarea {
+            width: 100%; background: transparent; border: 1px solid var(--border);
+            color: rgba(255,255,255,0.8); font-family: 'DM Sans', sans-serif;
+            font-size: 14px; font-weight: 300; padding: 12px 16px; outline: none; transition: border-color 0.3s;
+        }
+
+        .form-input:focus, .form-textarea:focus { border-color: rgba(200,169,110,0.4); }
+        .form-textarea { resize: vertical; min-height: 100px; }
+        .form-input::placeholder, .form-textarea::placeholder { color: rgba(255,255,255,0.15); }
+
+        .btn-submit {
+            width: 100%; background: transparent; border: 1px solid rgba(200,169,110,0.4);
+            color: var(--gold); padding: 14px; font-family: 'DM Sans', sans-serif;
+            font-size: 11px; letter-spacing: 3px; text-transform: uppercase; cursor: pointer;
+            transition: all 0.3s; margin-top: 8px;
+        }
+
+        .btn-submit:hover { background: rgba(200,169,110,0.08); border-color: var(--gold); }
+
+        footer { background: var(--ink); border-top: 1px solid var(--border); padding: 48px 60px 36px; }
+
+        .footer-top {
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid var(--border); padding-bottom: 32px; margin-bottom: 28px;
+        }
+
+        .footer-brand { font-family: 'DM Mono', monospace; font-size: 12px; letter-spacing: 4px; color: rgba(255,255,255,0.3); text-transform: uppercase; }
+
+        .footer-links { display: flex; gap: 28px; }
+
+        .footer-links a { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.25); text-decoration: none; transition: color 0.2s; }
+        .footer-links a:hover { color: var(--gold); }
+
+        .footer-bottom { display: flex; justify-content: space-between; font-size: 11px; letter-spacing: 1px; color: rgba(255,255,255,0.18); }
+
+        .typing { display: inline-flex; gap: 4px; align-items: center; padding: 4px 0; }
+        .typing span { width: 4px; height: 4px; border-radius: 50%; background: var(--gold); opacity: 0.5; animation: typebounce 1.2s ease-in-out infinite; }
+        .typing span:nth-child(2) { animation-delay: 0.2s; }
+        .typing span:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes typebounce { 0%,100% { transform: translateY(0); opacity: 0.3; } 50% { transform: translateY(-4px); opacity: 0.8; } }
+        @keyframes rise { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+
+        .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.7s ease, transform 0.7s ease; }
+        .reveal.visible { opacity: 1; transform: translateY(0); }
+
+        @media (max-width: 768px) {
+            nav { padding: 16px 20px; }
+            .nav-links { display: none; }
+            section { padding: 64px 20px; }
+            .hero { padding: 100px 20px 80px; }
+            .hero-title { font-size: 38px; }
+            .hero-cta { flex-direction: column; align-items: stretch; width: 100%; max-width: 300px; }
+            .btn-primary, .btn-gold { text-align: center; }
+            .what-cards { grid-template-columns: 1fr; }
+            .build-grid { grid-template-columns: 1fr; }
+            .case-inner { grid-template-columns: 1fr; gap: 40px; }
+            .case-stats { grid-template-columns: 1fr 1fr; }
+            .contact-inner { grid-template-columns: 1fr; gap: 40px; }
+            footer { padding: 40px 20px 28px; }
+            .footer-top { flex-direction: column; gap: 20px; align-items: flex-start; }
+            .footer-bottom { flex-direction: column; gap: 8px; }
+            .lab-statement { padding: 60px 20px; }
+            .hero-scroll { display: none; }
+            .products-section { padding: 100px 24px; }
+            .products-grid { grid-template-columns: 1fr; }
+        }
+
+        /* PRODUCTS SECTION */
+        .products-section { padding: 140px 60px; position: relative; }
+        .products-section .section-tag { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 6px; color: var(--gold); opacity: 0.6; text-transform: uppercase; margin-bottom: 20px; }
+        .products-section .section-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(32px, 4vw, 52px); font-weight: 300; color: var(--white); max-width: 600px; line-height: 1.2; margin-bottom: 16px; }
+        .products-section .section-sub { font-size: 15px; color: rgba(255,255,255,0.35); max-width: 520px; line-height: 1.8; margin-bottom: 72px; }
+        .products-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 2px; margin-bottom: 80px; }
+        .product-card { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); padding: 40px; position: relative; transition: all 0.3s; }
+        .product-card:hover { background: rgba(200,169,110,0.04); border-color: rgba(200,169,110,0.2); }
+        .product-card.featured { border-color: rgba(200,169,110,0.25); background: rgba(200,169,110,0.03); }
+        .product-badge { font-family: 'DM Mono', monospace; font-size: 8px; letter-spacing: 4px; color: var(--gold); text-transform: uppercase; margin-bottom: 20px; display: inline-block; border: 1px solid rgba(200,169,110,0.3); padding: 4px 10px; }
+        .product-name { font-family: 'Cormorant Garamond', serif; font-size: 32px; font-weight: 300; color: var(--white); margin-bottom: 8px; }
+        .product-tagline { font-size: 13px; color: rgba(255,255,255,0.35); margin-bottom: 28px; line-height: 1.6; }
+        .product-features { list-style: none; margin-bottom: 36px; }
+        .product-features li { font-size: 13px; color: rgba(255,255,255,0.5); padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.04); display: flex; align-items: center; gap: 10px; }
+        .product-features li::before { content: '—'; color: var(--gold); opacity: 0.5; font-family: 'DM Mono', monospace; font-size: 10px; }
+        .product-pricing { display: flex; align-items: baseline; gap: 8px; margin-bottom: 8px; }
+        .price-setup { font-family: 'DM Mono', monospace; font-size: 11px; color: rgba(255,255,255,0.3); letter-spacing: 1px; }
+        .price-monthly { font-family: 'Cormorant Garamond', serif; font-size: 28px; font-weight: 300; color: var(--gold); }
+        .price-label { font-size: 11px; color: rgba(255,255,255,0.25); }
+        .product-actions { display: flex; gap: 10px; margin-top: 28px; }
+        .btn-demo { flex: 1; background: transparent; color: var(--gold); border: 1px solid rgba(200,169,110,0.4); padding: 12px 20px; font-family: 'DM Sans', sans-serif; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; transition: all 0.3s; text-decoration: none; text-align: center; display: inline-block; }
+        .btn-demo:hover { background: rgba(200,169,110,0.08); border-color: var(--gold); }
+        .btn-enquire { background: transparent; color: rgba(255,255,255,0.4); border: 1px solid rgba(255,255,255,0.1); padding: 12px 20px; font-family: 'DM Sans', sans-serif; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; transition: all 0.3s; text-decoration: none; text-align: center; display: inline-block; }
+        .btn-enquire:hover { border-color: rgba(255,255,255,0.3); color: rgba(255,255,255,0.7); }
+        .coming-soon-card { background: rgba(255,255,255,0.01); border: 1px dashed rgba(255,255,255,0.06); padding: 40px; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; }
+        .cs-label { font-family: 'DM Mono', monospace; font-size: 8px; letter-spacing: 4px; color: rgba(255,255,255,0.2); text-transform: uppercase; margin-bottom: 12px; }
+        .cs-name { font-family: 'Cormorant Garamond', serif; font-size: 28px; font-weight: 300; color: rgba(255,255,255,0.2); margin-bottom: 8px; }
+        .cs-desc { font-size: 12px; color: rgba(255,255,255,0.15); line-height: 1.6; }
+
+    
+        .moth-typing {
+            display: flex; align-items: center; padding: 4px 0;
+        }
+        .moth-anim {
+            font-size: 18px;
+            display: inline-block;
+            animation: mothWait 1.8s ease-in-out infinite;
+            filter: sepia(1) saturate(3) hue-rotate(10deg);
+        }
+        @keyframes mothWait {
+            0%, 100% { transform: translateY(0) rotate(-8deg) scaleX(0.85); opacity: 0.5; }
+            25% { transform: translateY(-5px) rotate(0deg) scaleX(1); opacity: 1; }
+            50% { transform: translateY(-8px) rotate(8deg) scaleX(0.85); opacity: 0.8; }
+            75% { transform: translateY(-3px) rotate(0deg) scaleX(1); opacity: 0.9; }
+        }
+</style>
+</head>
+<body>
+
+<nav>
+    <a href="#" class="nav-logo">
+        <img src="bogong-logo.png" alt="Bogong">
+        <span class="nav-wordmark">Bogong AI Lab</span>
+    </a>
+    <div class="nav-links">
+        <a href="#what">What we do</a>
+        <a href="#build">What we build</a>
+        <a href="#mirrors">Case study</a>
+        <a href="#products">Products</a>
+        <a href="#contact">Contact</a>
+        <a href="#chat" class="btn-nav">Talk to us</a>
+    </div>
+</nav>
+
+<section class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-grid-lines"></div>
+    <div class="hero-tag">Bogong AI Solutions Lab &mdash; Melbourne</div>
+    <h1 class="hero-title">
+        Mapping the way<br>
+        your business <em>thinks.</em><br>
+        Engineering the AI<br>
+        that <em>powers it.</em>
+    </h1>
+    <p class="hero-sub">We study how your operation actually runs — then build AI systems that fit it precisely. Not templates. Not shortcuts. Architecture.</p>
+    <div class="hero-cta">
+        <a href="#chat" class="btn-gold">Analyze my workflow</a>
+        <a href="#what" class="btn-primary">How we work</a>
+    </div>
+    <div class="hero-scroll">
+        <span>Scroll</span>
+        <div class="scroll-line"></div>
+    </div>
+</section>
+
+<section class="what section" id="what">
+    <div class="what-inner">
+        <div class="what-header reveal">
+            <div class="section-tag">What we do</div>
+            <h2>We don't consult.<br>We <em>build.</em></h2>
+        </div>
+        <div class="what-cards reveal">
+            <div class="what-card">
+                <div class="card-num">01</div>
+                <h4>Process Analysis</h4>
+                <p>We map how your business actually operates — the loops, the blockers, the manual work that shouldn't be manual. We find where intelligence can replace friction.</p>
+            </div>
+            <div class="what-card">
+                <div class="card-num">02</div>
+                <h4>AI Architecture</h4>
+                <p>We design systems built for your specific operation — not off-the-shelf software that requires your business to adapt. The AI fits your workflow, not the other way around.</p>
+            </div>
+            <div class="what-card">
+                <div class="card-num">03</div>
+                <h4>Implementation</h4>
+                <p>We build it, test it, and hand it over working. You don't need to understand the code. You need to see the results — and we stay until you do.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="lab-statement">
+    <p class="reveal">"We don't sell software.<br>We <em>engineer clarity.</em>"</p>
+</div>
+
+<section class="build section" id="build">
+    <div class="build-inner">
+        <div class="build-header reveal">
+            <div class="section-tag">What we build</div>
+            <h2>Front-end intelligence.<br>Back-end power.</h2>
+        </div>
+        <div class="build-grid reveal">
+            <div class="build-col">
+                <div class="build-col-label">Front-end AI</div>
+                <div class="build-items">
+                    <div class="build-item"><div class="build-item-dot"></div><div class="build-item-text"><h5>AI Chatbots & Assistants</h5><p>Customer-facing AI that knows your business — products, policies, tone. Trained on your context, not generic knowledge.</p></div></div>
+                    <div class="build-item"><div class="build-item-dot"></div><div class="build-item-text"><h5>Customer Systems</h5><p>Automated responses, inquiry routing, personalized communication at scale — without losing the human tone.</p></div></div>
+                    <div class="build-item"><div class="build-item-dot"></div><div class="build-item-text"><h5>Web Integration</h5><p>AI embedded directly into your existing website or platform. No rebuilds. No disruption.</p></div></div>
+                </div>
+            </div>
+            <div class="build-col">
+                <div class="build-col-label">Back-end Intelligence</div>
+                <div class="build-items">
+                    <div class="build-item"><div class="build-item-dot"></div><div class="build-item-text"><h5>Operations Automation</h5><p>Stock management, scheduling, reporting — repetitive processes removed from human time and handed to systems that don't miss.</p></div></div>
+                    <div class="build-item"><div class="build-item-dot"></div><div class="build-item-text"><h5>Analytics Dashboards</h5><p>Your data, made visible and actionable. Performance, inventory, sales patterns — surfaced clearly without spreadsheet archaeology.</p></div></div>
+                    <div class="build-item"><div class="build-item-dot"></div><div class="build-item-text"><h5>Prompt Engineering</h5><p>Custom AI behaviour designed for your specific use case. The difference between a generic model and one that actually works for your context.</p></div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="case-study section" id="mirrors">
+    <div class="case-inner">
+        <div class="case-left reveal">
+            <div class="section-tag">Case study</div>
+            <h2>We built <em>Mirrors</em> — from nothing.</h2>
+            <p>Mirrors is a live AI product built entirely by Bogong AI Lab. A triple-layer reflection system — emotional, mental, and synthesis — powered by three AI models working in sequence.</p>
+            <p>No templates. No white-label tools. Designed, architected, and deployed from the ground up. It's not a demo. It has real users.</p>
+            <div class="case-stats">
+                <div class="case-stat"><div class="case-stat-num">3</div><div class="case-stat-label">AI models in sequence</div></div>
+                <div class="case-stat"><div class="case-stat-num">Live</div><div class="case-stat-label">Production deployment</div></div>
+                <div class="case-stat"><div class="case-stat-num">Any</div><div class="case-stat-label">Language supported</div></div>
+                <div class="case-stat"><div class="case-stat-num">0</div><div class="case-stat-label">Data stored on servers</div></div>
+            </div>
+        </div>
+        <div class="case-right reveal">
+            <div class="case-preview-tag">bogongai.com</div>
+            <div class="case-preview-title">Mirrors by Bogong</div>
+            <div class="case-preview-text">A space to see yourself without distortion. Two AI layers read what you share — one tracks the emotional current, one tracks the thought structure. A third synthesizes both. No advice. No agenda. Just clarity.</div>
+            <a href="https://bogongai.com" class="case-preview-link" target="_blank">See the live product</a>
+        </div>
+    </div>
+</section>
+
+<section class="chat-section section" id="chat">
+    <div class="chat-inner">
+        <div class="chat-header reveal">
+            <div class="section-tag">Talk to us</div>
+            <h2>Start with a question.</h2>
+            <p>Tell us what your business does, where the friction is, or what you've been trying to solve. We'll tell you honestly what AI can do — and what it can't.</p>
+        </div>
+        <div class="chat-box reveal">
+            <div class="chat-messages" id="chatMessages">
+                <div class="msg bot">
+                    <div class="msg-avatar bot">B</div>
+                    <div class="msg-bubble">Hello. I'm the Bogong AI Lab assistant. Tell me about your business — what you do, what's taking too much time, or what you've been trying to automate. I'll give you an honest picture of what's possible.</div>
+                </div>
+            </div>
+            <div class="chat-input-area">
+                <textarea class="chat-input" id="chatInput" placeholder="Describe your business or ask a question..." rows="1"></textarea>
+                <button class="btn-send" onclick="sendMessage()">Send</button>
+            </div>
+        </div>
+        <p class="chat-disclaimer">Powered by Claude AI &mdash; Bogong AI Lab</p>
+    </div>
+</section>
+
+<!-- PRODUCTS -->
+<section id="products" class="products-section">
+    <div class="section-tag">Products &amp; Solutions</div>
+    <h2 class="section-title">Built for real businesses.<br><em>Priced to grow with you.</em></h2>
+    <p class="section-sub">Each Bogong product is a precision instrument — purpose-built for a specific industry layer, deployed in days, not months.</p>
+
+    <div class="products-grid">
+        <div class="product-card featured">
+            <span class="product-badge">Live · Hospitality</span>
+            <div class="product-name">Bogong Dial</div>
+            <div class="product-tagline">Caller ID intelligence for restaurants. Know your customer before you say hello.</div>
+            <ul class="product-features">
+                <li>Instant caller recognition</li>
+                <li>Customer name, address &amp; order history</li>
+                <li>Delivery distance — calculated automatically</li>
+                <li>Google Maps driving directions</li>
+                <li>Print order slip — Delivery or Pickup</li>
+                <li>Address book &amp; customer search</li>
+                <li>Cloud sync — never lose a record</li>
+            </ul>
+            <div class="product-pricing">
+                <span class="price-setup">$999 setup ·</span>
+                <span class="price-monthly">$49</span>
+                <span class="price-label">AUD / month</span>
+            </div>
+            <div class="product-actions">
+                <a href="/dial-demo.html" class="btn-demo" target="_blank">Live Demo</a>
+                <a href="#contact" class="btn-enquire">Enquire</a>
+            </div>
+        </div>
+
+        <div class="product-card">
+            <span class="product-badge">Beta · Retail</span>
+            <div class="product-name">Bogong Edge</div>
+            <div class="product-tagline">Z Report intelligence for multi-store retailers. Daily, weekly, monthly — all in one view.</div>
+            <ul class="product-features">
+                <li>Upload Z Reports — data accumulates</li>
+                <li>Per-store revenue breakdown</li>
+                <li>Weekly &amp; monthly trend analysis</li>
+                <li>Returns tracking by location</li>
+                <li>Yearly performance overview</li>
+                <li>Export to Excel</li>
+            </ul>
+            <div class="product-pricing">
+                <span class="price-setup">From $2,500 setup ·</span>
+                <span class="price-monthly">$299</span>
+                <span class="price-label">AUD / month</span>
+            </div>
+            <div class="product-actions">
+                <a href="#contact" class="btn-enquire" style="flex:1;text-align:center">Enquire</a>
+            </div>
+        </div>
+
+        <div class="coming-soon-card">
+            <div class="cs-label">Coming Soon</div>
+            <div class="cs-name">Bogong Ledger</div>
+            <div class="cs-desc">Invoice parsing, expense tracking, and Square sales integration for hospitality. PDF in, insight out.</div>
+        </div>
+
+        <div class="coming-soon-card">
+            <div class="cs-label">Coming Soon</div>
+            <div class="cs-name">Bogong Reach</div>
+            <div class="cs-desc">WhatsApp campaign broadcasting for restaurants. Promote to your opt-in customer list — directly, personally.</div>
+        </div>
+    </div>
+</section>
+
+<!-- CONTACT -->
+<section class="contact section" id="contact">
+    <div class="contact-inner">
+        <div class="contact-left reveal">
+            <div class="section-tag">Contact</div>
+            <h2>Let's map your operation.</h2>
+            <p>We work with businesses in Melbourne and remotely across Australia. The first conversation is always free — and always honest.</p>
+            <a href="/cdn-cgi/l/email-protection#630b060f0f0c23010c040c0d04020a4d0d0617" class="contact-email"><span class="__cf_email__" data-cfemail="234b464f4f4c63414c444c4d44424a0d4d4657">[email&#160;protected]</span></a>
+        </div>
+        <div class="contact-right reveal">
+            <div class="form-group">
+                <label class="form-label">Your name</label>
+                <input type="text" class="form-input" placeholder="Name" id="formName">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Email</label>
+                <input type="email" class="form-input" placeholder="you@company.com" id="formEmail">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Tell us about your business</label>
+                <textarea class="form-textarea" placeholder="What you do, what's not working, what you're trying to build..." id="formMessage"></textarea>
+            </div>
+            <button class="btn-submit" onclick="submitForm()">Send message</button>
+            <div id="formStatus" style="margin-top:14px;font-size:12px;letter-spacing:2px;color:var(--gold);text-align:center;min-height:18px;"></div>
+        </div>
+    </div>
+</section>
+
+<footer>
+    <div class="footer-top">
+        <div class="footer-brand">Bogong AI Solutions Lab &mdash; bogongai.net</div>
+        <div class="footer-links">
+            <a href="#what">What we do</a>
+            <a href="#build">What we build</a>
+            <a href="#mirrors">Case study</a>
+            <a href="#products">Products</a>
+            <a href="#chat">Talk to us</a>
+            <a href="https://bogongai.com" target="_blank">Mirrors</a>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <span>&copy; 2025 Bogong AI Solutions Lab &mdash; Melbourne, Australia</span>
+        <span>Not a template. Not a shortcut. Architecture.</span>
+    </div>
+</footer>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+    var API_BASE = "";
+    var chatHistory = [];
+
+    var SYSTEM_PROMPT = "You are the Bogong AI Lab assistant. Bogong AI Solutions Lab is a Melbourne-based AI architecture and analytics firm. We analyze how businesses operate and build custom AI systems that fit their specific workflows. We do not sell templates or off-the-shelf software — we architect, build and implement. Our services include: AI chatbots and customer systems, operations automation (stock management, scheduling, reporting), analytics dashboards, prompt engineering, and web AI integration. We have already built Mirrors (bogongai.com) — a live triple-AI reflection product. Be honest, direct and specific. Ask questions to understand the person's business. If AI is not the right solution for something, say so. Keep responses concise and professional. Do not use bullet points excessively. Sound like a smart, experienced consultant — not a salesperson.";
+
+    async function sendMessage() {
+        var input = document.getElementById('chatInput');
+        var text = input.value.trim();
+        if (!text) return;
+        input.value = '';
+        input.style.height = 'auto';
+        appendMessage('user', text);
+        chatHistory.push({ role: 'user', content: text });
+        var typingEl = appendTyping();
+        try {
+            var response = await fetch('/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ messages: chatHistory, system: SYSTEM_PROMPT })
+            });
+
+            typingEl.remove();
+
+            // Streaming mi normal mi kontrol et
+            var contentType = response.headers.get('content-type') || '';
+            
+            if (contentType.includes('text/event-stream') || contentType.includes('text/plain')) {
+                // Streaming response
+                var container = document.getElementById('chatMessages');
+                var div = document.createElement('div');
+                div.className = 'msg bot';
+                var avatar = document.createElement('div');
+                avatar.className = 'msg-avatar bot';
+                avatar.textContent = '🦋';
+                var bubble = document.createElement('div');
+                bubble.className = 'msg-bubble';
+                div.appendChild(avatar);
+                div.appendChild(bubble);
+                container.appendChild(div);
+
+                var reader = response.body.getReader();
+                var decoder = new TextDecoder();
+                var fullText = '';
+
+                while (true) {
+                    var result = await reader.read();
+                    if (result.done) break;
+                    var chunk = decoder.decode(result.value);
+                    var lines = chunk.split('
+');
+                    for (var line of lines) {
+                        if (line.startsWith('data: ') && line !== 'data: [DONE]') {
+                            try {
+                                var parsed = JSON.parse(line.slice(6));
+                                if (parsed.text) {
+                                    fullText += parsed.text;
+                                    bubble.textContent = fullText;
+                                    container.scrollTop = container.scrollHeight;
+                                }
+                            } catch(e) {}
+                        }
+                    }
+                }
+                chatHistory.push({ role: 'assistant', content: fullText });
+            } else {
+                // Normal JSON response
+                var data = await response.json();
+                var reply = data.result || data.error || 'Something went wrong.';
+                appendMessage('bot', reply);
+                chatHistory.push({ role: 'assistant', content: reply });
+            }
+        } catch(e) {
+            typingEl.remove();
+            appendMessage('bot', 'Connection error. Please try again or email studio@bogong.net');
+        }
+    }
+
+    function appendMessage(role, text) {
+        var container = document.getElementById('chatMessages');
+        var div = document.createElement('div');
+        div.className = 'msg ' + (role === 'user' ? 'user' : 'bot');
+        var avatar = document.createElement('div');
+        avatar.className = 'msg-avatar ' + (role === 'user' ? 'user-av' : 'bot');
+        avatar.textContent = role === 'user' ? 'You' : '🦋';
+        var bubble = document.createElement('div');
+        bubble.className = 'msg-bubble';
+        if (role === 'bot') {
+            div.appendChild(avatar);
+            div.appendChild(bubble);
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
+            typeWriterChat(bubble, text, 18);
+        } else {
+            bubble.textContent = text;
+            div.appendChild(avatar);
+            div.appendChild(bubble);
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
+        }
+        return div;
+    }
+
+    function typeWriterChat(element, text, speed) {
+        element.textContent = '';
+        var i = 0;
+        var container = document.getElementById('chatMessages');
+        function type() {
+            if (i < text.length) {
+                element.textContent += text.charAt(i);
+                i++;
+                container.scrollTop = container.scrollHeight;
+                setTimeout(type, speed);
+            }
+        }
+        type();
+    }
+
+    function appendTyping() {
+        var container = document.getElementById('chatMessages');
+        var div = document.createElement('div');
+        div.className = 'msg bot';
+        var avatar = document.createElement('div');
+        avatar.className = 'msg-avatar bot';
+        avatar.textContent = 'B';
+        var bubble = document.createElement('div');
+        bubble.className = 'msg-bubble';
+        bubble.innerHTML = '<div class="moth-typing"><span class="moth-anim">🦋</span></div>';
+        div.appendChild(avatar);
+        div.appendChild(bubble);
+        container.appendChild(div);
+        container.scrollTop = container.scrollHeight;
+        return div;
+    }
+
+    function submitForm() {
+        var name = document.getElementById('formName').value.trim();
+        var email = document.getElementById('formEmail').value.trim();
+        var message = document.getElementById('formMessage').value.trim();
+        var status = document.getElementById('formStatus');
+        if (!name || !email || !message) {
+            status.textContent = 'Please fill in all fields.';
+            status.style.color = 'rgba(220,80,80,0.8)';
+            return;
+        }
+        status.textContent = 'Message sent. We will be in touch.';
+        status.style.color = 'var(--gold)';
+        document.getElementById('formName').value = '';
+        document.getElementById('formEmail').value = '';
+        document.getElementById('formMessage').value = '';
+    }
+
+    document.getElementById('chatInput').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+    });
+
+    document.getElementById('chatInput').addEventListener('input', function() {
+        this.style.height = 'auto';
+        this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+    });
+
+    var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+            if (entry.isIntersecting) entry.target.classList.add('visible');
+        });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.reveal').forEach(function(el) { observer.observe(el); });
+</script>
+
+</body>
+</html>
