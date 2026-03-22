@@ -3124,11 +3124,11 @@ function saveHistory() {
 // ── POLL ──
 // ── DEMO MODE ──
 var demoCustomers = [
-  { name:"James Wilson", phone:"0412 345 678", address:"42 Beach Rd, Mordialloc VIC 3195", note:"Allergic to nuts", isNew:false, orders:[{name:"Margherita Pizza, Garlic Bread",date:"12 Mar",amount:"$32.50"},{name:"BBQ Chicken Pizza",date:"5 Mar",amount:"$28.00"}] },
-  { name:"Sarah Chen", phone:"0423 456 789", address:"15 Park St, Cheltenham VIC 3192", note:"VIP customer ⭐", isNew:false, orders:[{name:"Seafood Pizza, Tiramisu",date:"10 Mar",amount:"$45.00"}] },
-  { name:"Michael Patel", phone:"0434 567 890", address:"8 Garden Ave, Mentone VIC 3194", note:"", isNew:false, orders:[] },
-  { name:"Emma Thompson", phone:"0445 678 901", address:"23 Ocean Blvd, Parkdale VIC 3195", note:"Extra spicy please 🌶️", isNew:false, orders:[{name:"Pepperoni Pizza x2",date:"8 Mar",amount:"$54.00"},{name:"Hawaiian Pizza",date:"1 Mar",amount:"$26.00"}] },
-  { name:"Unknown Caller", phone:"0456 789 012", address:"", note:"", isNew:true, orders:[] }
+  { name:"James Wilson", phone:"0412 000 001", address:"42 Beach Rd, Mordialloc VIC 3195", note:"Allergic to nuts", isNew:false, orders:[{name:"Margherita Pizza, Garlic Bread",date:"12 Mar",amount:"$32.50"},{name:"BBQ Chicken Pizza",date:"5 Mar",amount:"$28.00"}] },
+  { name:"Sarah Chen", phone:"0412 000 002", address:"15 Park St, Cheltenham VIC 3192", note:"VIP customer ⭐", isNew:false, orders:[{name:"Seafood Pizza, Tiramisu",date:"10 Mar",amount:"$45.00"}] },
+  { name:"Michael Patel", phone:"0412 000 003", address:"8 Garden Ave, Mentone VIC 3194", note:"", isNew:false, orders:[] },
+  { name:"Emma Thompson", phone:"0412 000 004", address:"23 Ocean Blvd, Parkdale VIC 3195", note:"Extra spicy please 🌶️", isNew:false, orders:[{name:"Pepperoni Pizza x2",date:"8 Mar",amount:"$54.00"},{name:"Hawaiian Pizza",date:"1 Mar",amount:"$26.00"}] },
+  { name:"Unknown Caller", phone:"0412 000 005", address:"", note:"", isNew:true, orders:[] }
 ];
 var demoIdx = 0;
 var demoActive = false;
@@ -3149,8 +3149,13 @@ function triggerDemoCall() {
 setInterval(triggerDemoCall, 3000);
 
 // Load today's history
-callHistory = JSON.parse(localStorage.getItem('dial_history') || '[]')
-  .filter(c => c.date === today());
+// Demo mode - pre-populated history
+callHistory = [
+  { date:today(), time:'12:34', phone:'0412 345 678', name:'James Wilson', address:'42 Beach Rd, Mordialloc VIC 3195', isNew:false, orders:[{name:'Margherita Pizza',date:'12 Mar',amount:'$32.50'}], note:'Allergic to nuts', missed:false },
+  { date:today(), time:'12:28', phone:'0423 456 789', name:'Sarah Chen', address:'15 Park St, Cheltenham VIC 3192', isNew:false, orders:[{name:'Seafood Pizza',date:'10 Mar',amount:'$45.00'}], note:'VIP customer ⭐', missed:false },
+  { date:today(), time:'12:15', phone:'0434 567 890', name:'Michael Patel', address:'8 Garden Ave, Mentone VIC 3194', isNew:false, orders:[], note:'', missed:true },
+  { date:today(), time:'11:52', phone:'0445 678 901', name:'Emma Thompson', address:'23 Ocean Blvd, Parkdale VIC 3195', isNew:false, orders:[{name:'Pepperoni Pizza x2',date:'8 Mar',amount:'$54.00'}], note:'Extra spicy 🌶️', missed:false }
+];
 renderHistory();
 setStatus('live', 'Waiting');
 
