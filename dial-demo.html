@@ -1,0 +1,3439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#080810">
+<title>Bogong Dial — Demo</title>
+<script src="https://cdn.jsdelivr.net/npm/@twilio/voice-sdk@2.3.2/dist/twilio.min.js"></script>
+<script>
+// ── TWILIO WEBRTC ──
+window.twilioDevice = null;
+window.twilioConnection = null;
+window.webrtcReady = false;
+
+async function initTwilioWebRTC() {
+  if (window.twilioDevice) { console.log('[TWILIO] Already initialized, skipping'); return; }
+  try {
+    const res = await fetch('https://bogong-dial.vercel.app/api/token');
+    const data = await res.json();
+    if (!data.token) { console.log('No token'); return; }
+
+    const tokenStr = String(data.token);
+    window.twilioDevice = new Twilio.Device(tokenStr, {
+      logLevel: 1,
+      edge: 'sydney',
+      codecPreferences: ['opus', 'pcmu']
+    });
+
+    window.twilioDevice.on('registered', () => {
+      window.webrtcReady = true;
+      console.log('Twilio WebRTC registered!');
+      window.showToast && window.showToast('📞 WebRTC Ready', 'green');
+    });
+
+    window.twilioDevice.on('incoming', (call) => {
+      window.twilioConnection = call;
+      console.log('[TWILIO] Incoming WebRTC call received, call:', call);
+      startRinging && startRinging();
+      call.on('disconnect', () => {
+        window.twilioConnection = null;
+        closeCall(false);
+      });
+      call.on('cancel', () => {
+        window.twilioConnection = null;
+        closeCall(true);
+      });
+    });
+
+    window.twilioDevice.on('error', (err) => {
+      console.log('Twilio error:', err.message);
+    });
+
+    await window.twilioDevice.register();
+
+  } catch(e) {
+    console.log('WebRTC init error:', e.message);
+  }
+}
+
+
+
+function holdCall() {
+  if (window.twilioConnection) {
+    const muted = window.twilioConnection.isMuted();
+    window.twilioConnection.mute(!muted);
+    showToast && showToast(muted ? 'Unmuted' : 'On Hold', 'green');
+  }
+}
+
+// Sayfa yüklenince hemen başlat
+initTwilioWebRTC();
+
+
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  /* Dark zones - header, right panel */
+  --void: #0a0a12;
+  --deep: #0f0f1c;
+  --surface: #161622;
+  --raised: #1e1e2e;
+  --rim: #2c2c42;
+  --border: rgba(255,255,255,0.10);
+
+  /* Light zones - caller panel, settings */
+  --light-bg: #f5f0e8;
+  --light-surface: #ede8de;
+  --light-raised: #e4ddd0;
+  --light-border: rgba(0,0,0,0.08);
+  --light-text: #1a1814;
+  --light-text-mid: #5a5550;
+  --light-text-dim: #9a9590;
+
+  /* Gold */
+  --border-gold: rgba(180,140,40,0.45);
+  --gold: #b8900a;
+  --gold-bright: #d4a820;
+  --gold-dim: rgba(180,140,40,0.18);
+  --gold-glow: rgba(180,140,40,0.08);
+
+  /* Status colors */
+  --text: #f8f5ee;
+  --text-mid: #c8c4bc;
+  --text-dim: #8a8880;
+  --green: #2ea86a;
+  --green-dim: rgba(46,168,106,0.15);
+  --red: #cc4444;
+  --red-dim: rgba(204,68,68,0.15);
+  --amber: #c8882a;
+  --blue: #4a7dc8;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body { width:100%; height:100%; overflow:hidden; background:var(--void); }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 300;
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+  padding-top: env(safe-area-inset-top, 24px);
+  font-size: 18px;
+}
+
+/* ── HEADER ── */
+.header {
+  height: 64px;
+  background: var(--deep);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 10;
+}
+
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.brand-moth {
+  font-size: 16px;
+  filter: sepia(1) saturate(3) hue-rotate(5deg);
+  opacity: 0.85;
+}
+
+.brand-name {
+  font-family: 'Instrument Serif', serif;
+  font-size: 22px;
+  color: var(--gold);
+  letter-spacing: 1px;
+  font-style: italic;
+}
+
+.brand-sep {
+  width: 1px;
+  height: 14px;
+  background: var(--rim);
+}
+
+.brand-store {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 3px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+}
+
+.header-center {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.status-pill {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 14px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--text-dim);
+}
+
+.status-dot.live {
+  background: var(--green);
+  box-shadow: 0 0 8px var(--green);
+  animation: pulse 2s infinite;
+}
+
+.status-dot.ringing {
+  background: var(--gold);
+  box-shadow: 0 0 12px var(--gold);
+  animation: pulse 0.6s infinite;
+}
+
+.status-text {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 3px;
+  color: var(--text-mid);
+  text-transform: uppercase;
+}
+
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hdr-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 2px;
+  padding: 6px 12px;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: all 0.2s;
+}
+
+.hdr-btn:hover { border-color: var(--border-gold); color: var(--gold); }
+
+.hdr-btn.gold {
+  border-color: var(--border-gold);
+  color: var(--gold);
+}
+
+.queue-badge {
+  display: none;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  background: var(--red-dim);
+  border: 1px solid rgba(212,85,85,0.4);
+  cursor: pointer;
+}
+
+.queue-badge.show { display: flex; animation: slideIn 0.3s ease; }
+
+.queue-count {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: var(--red);
+  text-transform: uppercase;
+}
+
+@keyframes slideIn { from{opacity:0;transform:translateX(10px)} to{opacity:1;transform:translateX(0)} }
+
+/* ── LAYOUT ── */
+.layout {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+
+/* ── LEFT PANEL ── */
+.caller-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  border-right: 1px solid rgba(0,0,0,0.15);
+  background: var(--light-bg);
+}
+
+/* IDLE STATE */
+.idle-state {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  position: relative;
+  background: var(--light-bg);
+}
+
+.idle-rings {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.idle-ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid rgba(180,140,40,0.12);
+}
+
+.idle-ring:nth-child(1) { width: 200px; height: 200px; }
+.idle-ring:nth-child(2) { width: 350px; height: 350px; }
+.idle-ring:nth-child(3) { width: 500px; height: 500px; }
+
+.idle-moth {
+  font-size: 42px;
+  filter: sepia(1) saturate(2) hue-rotate(5deg);
+  opacity: 0.25;
+  animation: mothIdle 4s ease-in-out infinite;
+}
+
+@keyframes mothIdle {
+  0%,100% { transform: translateY(0) rotate(-3deg); opacity:0.2; }
+  50% { transform: translateY(-12px) rotate(3deg); opacity:0.35; }
+}
+
+.idle-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 14px;
+  letter-spacing: 4px;
+  color: #6a6560;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+/* INCOMING STATE */
+.incoming-state {
+  flex: 1;
+  display: none;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.call-header {
+  padding: 24px 32px 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.call-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 14px;
+  background: var(--green-dim);
+  border: 1px solid rgba(61,186,122,0.3);
+}
+
+.call-badge-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 8px var(--green);
+  animation: pulse 0.8s infinite;
+}
+
+.call-badge-text {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 3px;
+  color: var(--green);
+  text-transform: uppercase;
+}
+
+.call-timer {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: var(--text-dim);
+}
+
+.call-body {
+  flex: 1;
+  padding: 20px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  overflow-y: auto;
+}
+
+.caller-name {
+  font-family: 'Instrument Serif', serif;
+  font-size: 52px;
+  font-weight: 400;
+  color: var(--light-text);
+  line-height: 1;
+  letter-spacing: -0.5px;
+}
+
+.caller-phone {
+  font-family: 'DM Mono', monospace;
+  font-size: 20px;
+  letter-spacing: 3px;
+  color: var(--light-text);
+  font-weight: 600;
+}
+
+.caller-new-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  background: var(--gold-dim);
+  border: 1px solid var(--border-gold);
+  font-family: 'DM Mono', monospace;
+  font-size: 8px;
+  letter-spacing: 3px;
+  color: var(--gold);
+  text-transform: uppercase;
+}
+
+/* ADDRESS CARD */
+.addr-card {
+  background: var(--light-surface);
+  border: 1px solid var(--light-border);
+  padding: 16px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.addr-left {}
+
+.addr-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 3px;
+  color: var(--light-text-mid);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.addr-text {
+  font-size: 16px;
+  color: var(--light-text);
+  line-height: 1.5;
+}
+
+.addr-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.addr-distance {
+  font-family: 'DM Mono', monospace;
+  font-size: 22px;
+  color: var(--gold);
+  letter-spacing: 1px;
+  font-weight: 700;
+}
+
+.addr-eta {
+  font-family: 'DM Mono', monospace;
+  font-size: 16px;
+  color: var(--light-text-mid);
+  letter-spacing: 1px;
+  font-weight: 500;
+}
+
+.addr-maps-btn {
+  background: none;
+  border: 2px solid rgba(180,140,40,0.5);
+  color: var(--gold);
+  font-family: 'DM Mono', monospace;
+  font-size: 13px;
+  letter-spacing: 2px;
+  padding: 10px 16px;
+  cursor: pointer;
+  text-transform: uppercase;
+  margin-top: 8px;
+  transition: all 0.2s;
+  font-weight: 600;
+}
+
+.addr-maps-btn:hover { border-color: var(--border-gold); color: var(--gold); }
+
+/* CUSTOMER NOTE */
+.note-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  background: rgba(212,149,74,0.08);
+  border: 1px solid rgba(212,149,74,0.25);
+  border-left: 3px solid var(--amber);
+}
+
+.note-icon { font-size: 12px; }
+
+.note-text {
+  font-size: 12px;
+  color: var(--amber);
+  line-height: 1.4;
+}
+
+/* LAST ORDERS */
+.orders-section {}
+
+.orders-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 8px;
+  letter-spacing: 4px;
+  color: var(--light-text-mid);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.order-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--light-border);
+}
+
+.order-item:last-child { border-bottom: none; }
+
+.order-name { font-size: 15px; color: var(--light-text); }
+.order-meta { display: flex; gap: 12px; align-items: center; }
+.order-date { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--text-dim); }
+.order-amt { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--gold); }
+
+.reorder-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  font-family: 'DM Mono', monospace;
+  font-size: 8px;
+  letter-spacing: 1px;
+  padding: 4px 10px;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: all 0.2s;
+}
+
+.reorder-btn:hover { border-color: var(--border-gold); color: var(--gold); }
+
+/* CALL ACTIONS */
+.call-actions {
+  padding: 16px 20px 20px;
+  display: flex;
+  gap: 8px;
+  border-top: 2px solid #e0ddd5;
+  background: #ede8de;
+  flex-shrink: 0;
+}
+
+.action-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 16px 12px;
+  border: 2px solid #ddd;
+  background: #f5f5f5;
+  cursor: pointer;
+  transition: all 0.2s;
+  flex: 1;
+  border-radius: 8px;
+}
+
+.action-btn:hover { border-color: var(--border-gold); background: var(--gold-dim); }
+
+.action-btn.answer {
+  border-color: rgba(61,186,122,0.4);
+  background: var(--green-dim);
+  flex: 2;
+}
+
+.action-btn.answer:hover { background: #1da851; }
+
+.action-btn.end {
+  border-color: #CC0000;
+  background: #CC0000;
+  border-radius: 8px;
+}
+
+.action-btn.end:hover { background: #aa0000; }
+
+.action-icon { font-size: 26px; }
+
+.action-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 13px;
+  letter-spacing: 2px;
+  color: #333;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.action-btn.answer .action-label { color: white; font-weight: 800; }
+.action-btn.end .action-label { color: var(--red); }
+
+/* NEW CUSTOMER STATE */
+.new-customer-state {
+  flex: 1;
+  display: none;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.new-call-header {
+  padding: 24px 32px 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.new-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 14px;
+  background: rgba(196,158,74,0.1);
+  border: 1px solid var(--border-gold);
+}
+
+.new-badge-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--gold);
+  box-shadow: 0 0 8px var(--gold);
+  animation: pulse 0.8s infinite;
+}
+
+.new-badge-text {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 3px;
+  color: var(--gold);
+  text-transform: uppercase;
+}
+
+.new-body {
+  flex: 1;
+  padding: 20px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  overflow-y: auto;
+}
+
+.new-phone {
+  font-family: 'DM Mono', monospace;
+  font-size: 22px;
+  letter-spacing: 3px;
+  color: var(--light-text);
+}
+
+.new-sub {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 4px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+}
+
+.quick-input {
+  width: 100%;
+  background: var(--light-surface);
+  border: 1px solid var(--light-border);
+  color: var(--light-text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  padding: 12px 16px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.quick-input:focus { border-color: var(--border-gold); }
+.quick-input::placeholder { color: var(--text-dim); }
+
+/* ── RIGHT PANEL ── */
+.right-panel {
+  width: 300px;
+  display: flex;
+  flex-direction: column;
+  background: var(--deep);
+  flex-shrink: 0;
+}
+
+.panel-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.panel-tab {
+  flex: 1;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-mid);
+  font-family: 'DM Mono', monospace;
+  font-size: 13px;
+  letter-spacing: 2px;
+  padding: 16px;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: all 0.2s;
+}
+
+.panel-tab.active {
+  color: var(--gold);
+  border-bottom-color: var(--gold);
+  background: var(--gold-glow);
+}
+
+/* CALLS PANEL */
+.panel-calls {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.panel-subheader {
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.panel-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: var(--text-mid);
+  text-transform: uppercase;
+}
+
+.panel-count {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  color: var(--gold-bright);
+  opacity: 0.7;
+}
+
+.call-list {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.call-list::-webkit-scrollbar { width: 2px; }
+.call-list::-webkit-scrollbar-thumb { background: var(--rim); }
+
+.call-item {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  transition: background 0.15s;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.call-item:hover { background: var(--surface); }
+
+.call-item.missed { border-left: 2px solid var(--red); }
+
+.call-item-left { flex: 1; min-width: 0; }
+
+.ci-time {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: var(--text-mid);
+  margin-bottom: 3px;
+}
+
+.ci-name {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 2px;
+}
+
+.ci-addr {
+  font-size: 14px;
+  color: var(--text-mid);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ci-badge {
+  font-family: 'DM Mono', monospace;
+  font-size: 7px;
+  letter-spacing: 1px;
+  padding: 2px 6px;
+  border: 1px solid;
+  text-transform: uppercase;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.ci-badge.new { border-color: rgba(196,158,74,0.3); color: var(--gold); }
+.ci-badge.missed-tag { border-color: rgba(212,85,85,0.3); color: var(--red); }
+
+.list-empty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 40px;
+}
+
+.empty-moth {
+  font-size: 24px;
+  opacity: 0.15;
+  animation: mothIdle 3s ease-in-out infinite;
+}
+
+.empty-text {
+  font-family: 'DM Mono', monospace;
+  font-size: 8px;
+  letter-spacing: 4px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+}
+
+/* CONTACTS PANEL */
+.panel-contacts {
+  flex: 1;
+  display: none;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.search-wrap {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.search-input {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  padding: 8px 12px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.search-input:focus { border-color: var(--border-gold); }
+.search-input::placeholder { color: var(--text-dim); }
+
+.contact-list { flex: 1; overflow-y: auto; }
+.contact-list::-webkit-scrollbar { width: 2px; }
+.contact-list::-webkit-scrollbar-thumb { background: var(--rim); }
+
+/* MISSED PANEL */
+.panel-missed {
+  flex: 1;
+  display: none;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* SETTINGS PANEL */
+.settings-panel {
+  display: none;
+  position: fixed;
+  inset: 52px 0 0;
+  background: var(--light-bg);
+  z-index: 100;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.settings-panel.open { display: flex; }
+
+.settings-topbar {
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--light-border);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: var(--light-surface);
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.settings-back {
+  background: none;
+  border: 1px solid var(--light-border);
+  color: var(--light-text-mid);
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 2px;
+  padding: 7px 14px;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: all 0.2s;
+}
+
+.settings-back:hover { border-color: var(--gold); color: var(--gold); }
+
+.settings-title {
+  font-family: 'Instrument Serif', serif;
+  font-size: 18px;
+  color: var(--gold);
+  letter-spacing: 1px;
+  font-style: italic;
+}
+
+.settings-call-alert {
+  display: none;
+  margin: 0 24px 0;
+  padding: 10px 16px;
+  background: var(--red-dim);
+  border: 1px solid rgba(212,85,85,0.3);
+  cursor: pointer;
+  align-items: center;
+  gap: 10px;
+}
+
+.settings-call-alert.show { display: flex; }
+
+.sca-text {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 3px;
+  color: var(--red);
+  text-transform: uppercase;
+}
+
+.settings-body {
+  padding: 32px 24px;
+  max-width: 560px;
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+.settings-group {}
+
+.settings-group-title {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 4px;
+  color: var(--gold);
+  text-transform: uppercase;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-gold);
+  margin-bottom: 20px;
+}
+
+.settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--light-border);
+  gap: 20px;
+}
+
+.settings-row:last-child { border-bottom: none; }
+
+.sr-left {}
+.sr-label { font-size: 14px; color: var(--light-text); margin-bottom: 4px; font-weight: 400; }
+.sr-sub { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--light-text-mid); letter-spacing: 1px; }
+
+.sr-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+
+.sr-input {
+  background: var(--light-raised);
+  border: 1px solid var(--light-border);
+  color: var(--light-text);
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  padding: 8px 12px;
+  outline: none;
+  width: 180px;
+  transition: border-color 0.2s;
+}
+
+.sr-input:focus { border-color: var(--gold); outline: none; }
+
+.sr-btn {
+  background: none;
+  border: 1px solid var(--light-border);
+  color: var(--light-text-mid);
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 1px;
+  padding: 8px 14px;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.sr-btn:hover { border-color: var(--gold); color: var(--gold); }
+.sr-btn.primary { border-color: var(--gold); color: var(--gold); background: rgba(180,140,40,0.08); }
+
+/* Toggle */
+.toggle {
+  width: 40px;
+  height: 22px;
+  background: var(--light-raised);
+  border-radius: 11px;
+  position: relative;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.toggle.on { background: rgba(61,186,122,0.4); border: 1px solid rgba(61,186,122,0.4); }
+
+.toggle-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--text-dim);
+  transition: all 0.2s;
+}
+
+.toggle.on .toggle-thumb {
+  left: 20px;
+  background: var(--green);
+}
+
+/* Status indicator */
+.conn-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  margin-top: 12px;
+}
+
+.conn-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--text-dim);
+  flex-shrink: 0;
+}
+
+.conn-dot.ok { background: var(--green); box-shadow: 0 0 6px var(--green); }
+.conn-dot.err { background: var(--red); }
+
+.conn-text {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: var(--text-dim);
+}
+
+/* ── ADD CUSTOMER MODAL ── */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(8,8,16,0.85);
+  z-index: 200;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-overlay.open { display: flex; }
+
+.modal-box {
+  background: var(--surface);
+  border: 1px solid var(--border-gold);
+  padding: 36px;
+  width: 440px;
+  max-width: 90vw;
+}
+
+.modal-title {
+  font-family: 'Instrument Serif', serif;
+  font-size: 22px;
+  color: var(--gold);
+  margin-bottom: 6px;
+}
+
+.modal-sub {
+  font-family: 'DM Mono', monospace;
+  font-size: 8px;
+  letter-spacing: 4px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  margin-bottom: 24px;
+}
+
+.modal-fields { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+
+.modal-input {
+  width: 100%;
+  background: var(--raised);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  padding: 11px 14px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.modal-input:focus { border-color: var(--border-gold); }
+.modal-input::placeholder { color: var(--text-dim); }
+
+.modal-actions { display: flex; gap: 8px; }
+
+.modal-btn {
+  flex: 1;
+  background: var(--gold);
+  color: var(--void);
+  border: none;
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 2px;
+  padding: 13px;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: opacity 0.2s;
+}
+
+.modal-btn:hover { opacity: 0.85; }
+
+.modal-btn.cancel {
+  background: none;
+  color: var(--text-dim);
+  border: 1px solid var(--border);
+  flex: 0 0 auto;
+  padding: 13px 20px;
+}
+
+.modal-btn.cancel:hover { opacity: 1; border-color: var(--border-gold); color: var(--gold); }
+
+.modal-msg {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 2px;
+  min-height: 16px;
+  margin-top: 10px;
+  text-align: center;
+}
+
+/* PRINT MODAL */
+.print-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(8,8,16,0.85);
+  z-index: 200;
+  align-items: center;
+  justify-content: center;
+}
+
+.print-modal.open { display: flex; }
+
+.print-box {
+  background: var(--surface);
+  border: 1px solid var(--border-gold);
+  padding: 32px;
+  width: 380px;
+  max-width: 90vw;
+}
+
+.print-title {
+  font-family: 'Instrument Serif', serif;
+  font-size: 20px;
+  color: var(--gold);
+  margin-bottom: 20px;
+}
+
+.type-row { display: flex; gap: 6px; margin-bottom: 20px; }
+
+.type-btn {
+  flex: 1;
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 2px;
+  padding: 13px;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: all 0.2s;
+}
+
+.type-btn.selected {
+  background: var(--gold-dim);
+  border-color: var(--border-gold);
+  color: var(--gold);
+}
+
+.print-actions { display: flex; gap: 8px; }
+
+.print-btn {
+  flex: 1;
+  background: var(--gold);
+  color: var(--void);
+  border: none;
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 2px;
+  padding: 13px;
+  cursor: pointer;
+  text-transform: uppercase;
+}
+
+.print-cancel {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 2px;
+  padding: 13px 18px;
+  cursor: pointer;
+  text-transform: uppercase;
+}
+
+/* MAPS OVERLAY */
+.maps-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(8,8,16,0.9);
+  z-index: 200;
+  align-items: center;
+  justify-content: center;
+}
+
+.maps-overlay.open { display: flex; }
+
+.maps-box {
+  background: var(--surface);
+  border: 1px solid var(--border-gold);
+  padding: 32px;
+  width: 400px;
+  max-width: 90vw;
+  text-align: center;
+}
+
+.maps-addr-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 8px;
+  letter-spacing: 5px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+.maps-addr-text {
+  font-size: 15px;
+  color: var(--text);
+  margin-bottom: 8px;
+  line-height: 1.5;
+}
+
+.maps-dist-text {
+  font-family: 'DM Mono', monospace;
+  font-size: 14px;
+  color: var(--gold);
+  margin-bottom: 24px;
+}
+
+.maps-open-btn {
+  display: block;
+  background: var(--gold);
+  color: var(--void);
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 3px;
+  padding: 14px;
+  text-decoration: none;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  transition: opacity 0.2s;
+}
+
+.maps-open-btn:hover { opacity: 0.85; }
+
+.maps-close-btn {
+  width: 100%;
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 2px;
+  padding: 12px;
+  cursor: pointer;
+  text-transform: uppercase;
+}
+
+/* PRINT RECEIPT */
+#printReceipt { display: none; }
+@media print {
+  body > *:not(#printReceipt) { display: none !important; }
+  #printReceipt { display: block !important; font-family: monospace; font-size: 12px; width: 72mm; margin: 0; padding: 4mm; color: #000; background: #fff; }
+}
+
+/* SCROLLBARS */
+::-webkit-scrollbar { width: 3px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--rim); }
+
+/* ── SWIPE ACTIONS ── */
+.swipe-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.swipe-actions-left {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  transform: translateX(100%);
+  transition: transform 0.25s ease;
+  z-index: 2;
+}
+
+.swipe-actions-right {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  transform: translateX(-100%);
+  transition: transform 0.25s ease;
+  z-index: 2;
+}
+
+.swipe-container.swiped-left .swipe-actions-left { transform: translateX(0); }
+.swipe-container.swiped-right .swipe-actions-right { transform: translateX(0); }
+
+.swipe-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 0 18px;
+  cursor: pointer;
+  border: none;
+  font-family: 'DM Mono', monospace;
+  font-size: 8px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  min-width: 64px;
+}
+
+.swipe-btn.delete { background: var(--red); color: white; }
+.swipe-btn.edit { background: var(--gold); color: var(--void); }
+.swipe-btn.maps { background: var(--blue); color: white; }
+.swipe-btn.call { background: var(--green); color: white; }
+.swipe-btn-icon { font-size: 16px; }
+
+.swipe-content {
+  position: relative;
+  z-index: 1;
+  background: var(--deep);
+  transition: transform 0.25s ease;
+}
+
+.swipe-container.swiped-left .swipe-content { transform: translateX(-128px); }
+.swipe-container.swiped-right .swipe-content { transform: translateX(128px); }
+
+
+/* ── MOBILE RESPONSIVE ── */
+@media (max-width: 768px) {
+  .header { padding: 0 12px; }
+  .brand-sep, .brand-store { display: none; }
+  .header-center { position: static; transform: none; }
+  .brand-name { font-size: 14px; }
+  
+  .layout { flex-direction: column; }
+  
+  .caller-panel {
+    flex: none;
+    height: 60vh;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+  }
+  
+  .right-panel {
+    width: 100%;
+    height: 40vh;
+    flex-shrink: 0;
+  }
+  
+  .caller-name { font-size: 28px; }
+  .caller-phone { font-size: 13px; }
+  
+  .call-body { padding: 14px 16px; gap: 12px; }
+  .call-header { padding: 14px 16px 0; }
+  .call-actions { padding: 10px 16px 14px; gap: 6px; }
+  
+  .action-btn { padding: 10px 8px; }
+  .action-icon { font-size: 16px; }
+  .action-label { font-size: 7px; }
+  
+  .addr-card { padding: 12px 14px; }
+  .addr-text { font-size: 13px; }
+  
+  .settings-body { padding: 20px 16px; }
+  .settings-topbar { padding: 14px 16px; }
+  
+  .sr-input { width: 140px; font-size: 11px; }
+  
+  .idle-ring:nth-child(3) { display: none; }
+}
+
+@media (max-width: 480px) {
+  .caller-name { font-size: 24px; }
+  .hdr-btn { font-size: 8px; padding: 5px 8px; }
+  .call-actions { flex-wrap: wrap; }
+  .action-btn { flex: 1 0 calc(50% - 4px); }
+  .action-btn.answer { flex: 1 0 100%; }
+}
+
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<!-- SPLASH SCREEN -->
+<div id="splashScreen" style="position:fixed;inset:0;background:#0a0a12;z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px">
+  <img src="logo.png" style="width:180px;height:180px;object-fit:contain;animation:splashMoth 1.5s ease-in-out infinite alternate">
+  <div style="font-family:'Instrument Serif',serif;font-size:28px;color:#d4af4a;letter-spacing:2px;font-style:italic">Bogong Dial</div>
+  <div style="font-family:'DM Mono',monospace;font-size:11px;color:rgba(212,175,74,0.6);letter-spacing:5px;text-transform:uppercase">The moth knows the mountain.</div>
+</div>
+
+<style>
+@keyframes splashMoth {
+  0% { transform: translateY(0) rotate(-3deg); opacity: 0.85; filter: drop-shadow(0 0 20px rgba(212,175,74,0.4)); }
+  100% { transform: translateY(-16px) rotate(3deg); opacity: 1; filter: drop-shadow(0 0 40px rgba(212,175,74,0.7)); }
+}
+@keyframes splashFadeOut {
+  0% { opacity: 1; }
+  100% { opacity: 0; pointer-events: none; }
+}
+</style>
+
+<header class="header">
+  <div class="header-brand">
+    <img src="logo.png" style="height:38px;width:38px;object-fit:contain;filter:drop-shadow(0 0 6px rgba(196,158,74,0.4))">
+    <span class="brand-name">Bogong Dial</span>
+    <div class="brand-sep"></div>
+    <span class="brand-store" id="storeName">BogongAI</span>
+  </div>
+
+  <div class="header-center">
+    <div class="status-pill">
+      <div class="status-dot live" id="statusDot"></div>
+      <span class="status-text" id="statusText">Waiting</span>
+    </div>
+    <div class="queue-badge" id="queueBadge" onclick="showNextQueue()">
+      <span>📞</span>
+      <span class="queue-count" id="queueCount">2 waiting</span>
+    </div>
+  </div>
+
+  <div class="header-actions">
+    <button onclick="openAddModal()" style="background:var(--gold);color:var(--void);border:none;font-family:'DM Mono',monospace;font-size:11px;letter-spacing:2px;padding:9px 18px;cursor:pointer;text-transform:uppercase;font-weight:600;margin-right:8px">+ Customer</button>
+    <button class="hdr-btn" onclick="openSettings()" style="background:var(--gold-dim);border-color:var(--border-gold);color:var(--gold);font-size:16px;padding:5px 14px">⚙</button>
+  </div>
+</header>
+
+<!-- MAIN LAYOUT -->
+<div class="layout">
+
+  <!-- LEFT PANEL -->
+  <div class="caller-panel">
+
+    <!-- IDLE -->
+    <div class="idle-state" id="idleState">
+      <div class="idle-rings">
+        <div class="idle-ring"></div>
+        <div class="idle-ring"></div>
+        <div class="idle-ring"></div>
+      </div>
+      <img class="idle-moth" src="logo.png" style="width:80px;height:80px;object-fit:contain">
+      <div class="idle-label">Waiting for calls</div>
+      <button id="soundActivateBtn" onclick="activateSound()" style="display:none;margin-top:12px;background:rgba(180,140,40,0.15);border:2px solid rgba(180,140,40,0.6);color:#7a5f00;font-family:'DM Mono',monospace;font-size:13px;letter-spacing:2px;padding:12px 24px;cursor:pointer;text-transform:uppercase;font-weight:700">🔔 Tap to enable sound</button>
+    </div>
+
+    <!-- INCOMING — KNOWN CUSTOMER -->
+    <div class="incoming-state" id="incomingState">
+      <div class="call-header" id="callHeader">
+        <div class="call-badge">
+          <div class="call-badge-dot"></div>
+          <span class="call-badge-text" id="callBadgeText">Incoming Call</span>
+        </div>
+        <span class="call-timer" id="callTimer">0:00</span>
+      </div>
+
+      <div class="call-body">
+        <div>
+          <div class="caller-name" id="callerName">Sarah Mitchell</div>
+          <div class="caller-phone" id="callerPhone">0412 345 678</div>
+        </div>
+
+        <div class="addr-card">
+          <div class="addr-left">
+            <div class="addr-label">Delivery Address</div>
+            <div class="addr-text" id="callerAddress">14 Bay Rd, Mordialloc VIC 3195</div>
+          </div>
+          <div class="addr-right">
+            <div class="addr-distance" id="callerDistance">~1.8 km</div>
+            <div class="addr-eta" id="callerETA">~8 min</div>
+            <button class="addr-maps-btn" onclick="openMaps()">📍 Maps</button>
+          </div>
+        </div>
+
+        <!-- ORDER TYPE TOGGLE -->
+        <div style="display:flex;gap:6px" id="orderTypeRow">
+          <button id="btnTypeDelivery" onclick="setOrderType('DELIVERY')" style="flex:1;padding:16px;border:3px solid #b8900a;background:rgba(184,144,10,0.15);color:#7a5f00;font-family:'DM Mono',monospace;font-size:13px;letter-spacing:2px;cursor:pointer;text-transform:uppercase;font-weight:700">🛵 Delivery</button>
+          <button id="btnTypePickup" onclick="setOrderType('PICKUP')" style="flex:1;padding:16px;border:3px solid #ccc;background:transparent;color:#888;font-family:'DM Mono',monospace;font-size:13px;letter-spacing:2px;cursor:pointer;text-transform:uppercase;font-weight:600">🏃 Pickup</button>
+        </div>
+
+        <div class="note-card" id="noteCard" style="display:none">
+          <span class="note-icon">⚠️</span>
+          <span class="note-text" id="noteText">Nut allergy — no pesto</span>
+        </div>
+
+        <div class="orders-section" id="ordersSection">
+          <div class="orders-label">Recent Orders</div>
+          <div id="ordersList"></div>
+        </div>
+      </div>
+
+      <div class="call-actions" id="mainCallActions">
+        <div class="action-btn answer" id="answerBtn" onclick="answerCall()" style="background:#25D366;border-color:#25D366">
+          <span class="action-icon">📞</span>
+          <span class="action-label" id="answerLabel">Answer</span>
+        </div>
+        <div class="action-btn" onclick="holdCall()" id="holdBtn">
+          <span class="action-icon">⏸</span>
+          <span class="action-label">Hold</span>
+        </div>
+        <div class="action-btn" onclick="openEditCurrent()">
+          <span class="action-icon">✏️</span>
+          <span class="action-label">Edit</span>
+        </div>
+        <div class="action-btn" onclick="openPrint()">
+          <span class="action-icon">🖨</span>
+          <span class="action-label">Print</span>
+        </div>
+        <div class="action-btn end" onclick="closeCall(true)" style="background:#CC0000;border-color:#CC0000">
+          <span class="action-icon">🛑</span>
+          <span class="action-label" style="color:white;font-weight:800">Close</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- NEW CUSTOMER -->
+    <div class="new-customer-state" id="newState">
+      <div class="new-call-header">
+        <div class="new-badge">
+          <div class="new-badge-dot"></div>
+          <span class="new-badge-text">New Caller</span>
+        </div>
+      </div>
+      <div class="new-body">
+        <div>
+          <div class="new-phone" id="newPhone">0400 000 000</div>
+          <div class="new-sub">Not in system</div>
+        </div>
+        <input class="quick-input" type="text" id="quickName" placeholder="Full name">
+        <input class="quick-input" type="text" id="quickAddress" placeholder="Delivery address">
+        <input class="quick-input" type="text" id="quickNote" placeholder="Note (allergy, preference...)">
+      </div>
+      <div class="call-actions">
+        <div class="action-btn answer" onclick="saveNewCustomer()">
+          <span class="action-icon">💾</span>
+          <span class="action-label">Save</span>
+        </div>
+        <div class="action-btn" onclick="answerWithoutSave()" style="border-color:rgba(66,204,132,0.4);background:var(--green-dim)">
+          <span class="action-icon">📞</span>
+          <span class="action-label" style="color:var(--green)">Answer</span>
+        </div>
+        <div class="action-btn end" onclick="closeCall(true)" style="background:#CC0000;border-color:#CC0000">
+          <span class="action-icon">🛑</span>
+          <span class="action-label" style="color:white;font-weight:800">Close</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <div class="right-panel">
+    <div class="panel-tabs">
+      <button class="panel-tab active" id="tabCalls" onclick="switchTab('calls')">Calls</button>
+      <button class="panel-tab" id="tabMissed" onclick="switchTab('missed')">Missed</button>
+      <button class="panel-tab" id="tabContacts" onclick="switchTab('contacts')">Contacts</button>
+    </div>
+
+    <!-- CALLS -->
+    <div class="panel-calls" id="panelCalls">
+      <div class="panel-subheader">
+        <span class="panel-label">Today</span>
+        <span class="panel-count" id="callCount">0 calls</span>
+      </div>
+      <div class="call-list" id="callList">
+        <div class="list-empty">
+          <span class="empty-moth">🦋</span>
+          <span class="empty-text">No calls yet</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- MISSED -->
+    <div class="panel-missed" id="panelMissed">
+      <div class="panel-subheader">
+        <span class="panel-label">Missed Today</span>
+        <span class="panel-count" id="missedCount">0</span>
+      </div>
+      <div class="call-list" id="missedList">
+        <div class="list-empty">
+          <span class="empty-moth">🦋</span>
+          <span class="empty-text">No missed calls</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONTACTS -->
+    <div class="panel-contacts" id="panelContacts">
+      <div class="search-wrap">
+        <input class="search-input" type="text" placeholder="Name or phone..." oninput="searchContacts(this.value)">
+      </div>
+      <div class="contact-list" id="contactList">
+        <div class="list-empty">
+          <span class="empty-moth">🦋</span>
+          <span class="empty-text">No contacts</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SETTINGS PANEL -->
+<div class="settings-panel" id="settingsPanel">
+  <div class="settings-topbar">
+    <button class="settings-back" onclick="closeSettings()">← Back</button>
+    <div class="settings-title">Settings</div>
+  </div>
+  <div class="settings-call-alert" id="settingsCallAlert" onclick="closeSettings()">
+    <span>📞</span>
+    <span class="sca-text">Incoming call — tap to return</span>
+  </div>
+  <div class="settings-body">
+
+    <!-- STORE -->
+    <div class="settings-group">
+      <div class="settings-group-title">Store</div>
+      <div class="settings-row">
+        <div class="sr-left">
+          <div class="sr-label">Store Name</div>
+          <div class="sr-sub">Shown on print slips</div>
+        </div>
+        <input class="sr-input" type="text" id="settingsStoreName" value="BogongAI">
+      </div>
+      <div class="settings-row">
+        <div class="sr-left">
+          <div class="sr-label">Delivery Fee</div>
+          <div class="sr-sub">Printed on delivery slips</div>
+        </div>
+        <input class="sr-input" type="text" id="settingsDeliveryFee" value="7.00" style="width:100px">
+      </div>
+      <div class="settings-row">
+        <div class="sr-left">
+          <div class="sr-label">Store Address</div>
+          <div class="sr-sub">For Maps distance calculation</div>
+        </div>
+        <input class="sr-input" type="text" id="settingsStoreAddr" value="558A Main St, Mordialloc">
+      </div>
+      <div style="margin-top:12px">
+        <button class="sr-btn primary" onclick="saveStoreSettings()" style="width:100%;padding:11px">Save Store Settings</button>
+      </div>
+    </div>
+
+        <!-- PRINTER -->
+    <div class="settings-group">
+      <div class="settings-group-title">Printer · Bluetooth</div>
+
+      <!-- SCAN BUTTON -->
+      <button class="sr-btn primary" onclick="scanBluetoothDevices()" id="scanBtn" style="width:100%;padding:12px;margin-bottom:10px;font-size:12px;letter-spacing:2px">
+        🔍 SCAN BLUETOOTH DEVICES
+      </button>
+
+      <!-- SCAN RESULTS LIST -->
+      <div id="btScanList" style="display:none;background:var(--light-surface);border:1px solid var(--light-border);margin-bottom:10px;max-height:180px;overflow-y:auto">
+        <div style="padding:8px 12px;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--light-text-mid);border-bottom:1px solid var(--light-border)">SELECT DEVICE TO ASSIGN</div>
+        <div id="btDeviceItems"></div>
+      </div>
+
+      <!-- ASSIGN MODAL -->
+      <div id="btAssignModal" style="display:none;background:var(--gold-dim);border:1px solid var(--border-gold);padding:12px;margin-bottom:10px">
+        <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--gold);margin-bottom:8px">ASSIGN <span id="btAssignName"></span> TO:</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <button class="sr-btn" onclick="assignPrinter(1)" style="border-color:var(--border-gold);color:var(--gold)">🍳 Kitchen</button>
+          <button class="sr-btn" onclick="assignPrinter(2)" style="border-color:var(--border-gold);color:var(--gold)">💰 Cashier</button>
+          <button class="sr-btn" onclick="assignPrinter(3)" style="border-color:var(--border-gold);color:var(--gold)">🍽️ Waiter</button>
+          <button class="sr-btn" onclick="assignHeadset()" style="border-color:var(--border-gold);color:var(--gold)">🎧 Headset</button>
+          <button class="sr-btn" onclick="cancelAssign()">Cancel</button>
+        </div>
+      </div>
+
+      <!-- PRINTER SLOTS -->
+      <div style="background:var(--light-raised);border:1px solid var(--light-border);padding:14px;margin-bottom:8px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <div><div class="sr-label">🍳 Kitchen</div><div class="sr-sub" id="printer1Name">Not assigned</div></div>
+          <div style="display:flex;gap:6px;align-items:center">
+            <div class="conn-dot" id="printer1Dot"></div>
+            <button class="sr-btn" onclick="testPrint(1)">Test</button>
+          </div>
+        </div>
+        <div style="display:flex;gap:6px">
+          <input class="sr-input" id="printer1IP" type="text" placeholder="192.168.0.202" style="flex:1;font-size:12px;font-family:'DM Mono',monospace">
+          <button class="sr-btn primary" onclick="saveIP(1)" style="padding:6px 12px;font-size:11px">Save IP</button>
+        </div>
+      </div>
+      <div style="background:var(--light-raised);border:1px solid var(--light-border);padding:14px;margin-bottom:8px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <div><div class="sr-label">💰 Cashier</div><div class="sr-sub" id="printer2Name">Not assigned</div></div>
+          <div style="display:flex;gap:6px;align-items:center">
+            <div class="conn-dot" id="printer2Dot"></div>
+            <button class="sr-btn" onclick="testPrint(2)">Test</button>
+          </div>
+        </div>
+        <div style="display:flex;gap:6px">
+          <input class="sr-input" id="printer2IP" type="text" placeholder="192.168.0.xxx" style="flex:1;font-size:12px;font-family:'DM Mono',monospace">
+          <button class="sr-btn primary" onclick="saveIP(2)" style="padding:6px 12px;font-size:11px">Save IP</button>
+        </div>
+      </div>
+      <div style="background:var(--light-raised);border:1px solid var(--light-border);padding:14px;margin-bottom:8px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <div><div class="sr-label">🍽️ Waiter</div><div class="sr-sub" id="printer3Name">Not assigned</div></div>
+          <div style="display:flex;gap:6px;align-items:center">
+            <div class="conn-dot" id="printer3Dot"></div>
+            <button class="sr-btn" onclick="testPrint(3)">Test</button>
+          </div>
+        </div>
+        <div style="display:flex;gap:6px">
+          <input class="sr-input" id="printer3IP" type="text" placeholder="192.168.0.xxx" style="flex:1;font-size:12px;font-family:'DM Mono',monospace">
+          <button class="sr-btn primary" onclick="saveIP(3)" style="padding:6px 12px;font-size:11px">Save IP</button>
+        </div>
+      </div>
+    </div>
+
+
+<!-- DOCKET DESIGN -->
+    <div class="settings-group">
+      <div class="settings-group-title">Printer · Docket Design</div>
+
+      <div class="settings-row">
+        <div class="sr-left">
+          <div class="sr-label">Paper Width</div>
+          <div class="sr-sub">Check your printer specs</div>
+        </div>
+        <div class="sr-right">
+          <button class="sr-btn" id="paper58btn" onclick="setPaperWidth(58)" style="border-color:var(--border-gold);color:var(--gold)">58mm</button>
+          <button class="sr-btn" id="paper80btn" onclick="setPaperWidth(80)">80mm</button>
+        </div>
+      </div>
+
+      <div class="settings-row">
+        <div class="sr-left">
+          <div class="sr-label">Font Size</div>
+        </div>
+        <div class="sr-right">
+          <button class="sr-btn" id="fontSmBtn" onclick="setFontSize('small')">Small</button>
+          <button class="sr-btn" id="fontMdBtn" onclick="setFontSize('normal')">Normal</button>
+          <button class="sr-btn" id="fontLgBtn" onclick="setFontSize('large')">Large</button>
+        </div>
+      </div>
+
+      <div class="settings-row">
+        <div class="sr-left">
+          <div class="sr-label">Show Store Name</div>
+        </div>
+        <div class="toggle on" id="toggleStoreName" onclick="this.classList.toggle('on')">
+          <div class="toggle-thumb"></div>
+        </div>
+      </div>
+
+      <div class="settings-row">
+        <div class="sr-left">
+          <div class="sr-label">Show Delivery Fee</div>
+          <div class="sr-sub">Only on delivery slips</div>
+        </div>
+        <div class="toggle on" id="toggleDeliveryFee" onclick="this.classList.toggle('on')">
+          <div class="toggle-thumb"></div>
+        </div>
+      </div>
+
+      <div class="settings-row">
+        <div class="sr-left">
+          <div class="sr-label">Show Time Given</div>
+        </div>
+        <div class="toggle on" id="toggleTimeGiven" onclick="this.classList.toggle('on')">
+          <div class="toggle-thumb"></div>
+        </div>
+      </div>
+
+      <div class="settings-row">
+        <div class="sr-left">
+          <div class="sr-label">Show Order Taken By</div>
+        </div>
+        <div class="toggle on" id="toggleOrderBy" onclick="this.classList.toggle('on')">
+          <div class="toggle-thumb"></div>
+        </div>
+      </div>
+
+      <div class="settings-row">
+        <div class="sr-left">
+          <div class="sr-label">Show Note Line</div>
+        </div>
+        <div class="toggle on" id="toggleNote" onclick="this.classList.toggle('on')">
+          <div class="toggle-thumb"></div>
+        </div>
+      </div>
+
+      <div class="settings-row">
+        <div class="sr-left">
+          <div class="sr-label">Footer Message</div>
+          <div class="sr-sub">Printed at bottom of docket</div>
+        </div>
+        <input class="sr-input" type="text" id="docketFooter" placeholder="Thank you!" value="Thank you!">
+      </div>
+
+      <div style="margin-top:16px;background:var(--light-raised);border:1px solid var(--light-border);padding:16px;font-family:'Courier New',Courier,monospace;font-size:11px;color:var(--light-text-mid);line-height:1.6;white-space:pre;overflow-x:auto" id="docketPreview">
+        Loading preview...
+      </div>
+
+      <div style="margin-top:10px;display:flex;gap:8px">
+        <button class="sr-btn" onclick="testPrint()" style="flex:1;padding:10px">Test Print</button>
+        <button class="sr-btn primary" onclick="saveDocketSettings()" style="flex:1;padding:10px">Save</button>
+      </div>
+    </div>
+
+    <!-- AUDIO -->
+    <div class="settings-group">
+      <div class="settings-group-title">Audio</div>
+      <div class="settings-row">
+        <div class="sr-left">
+          <div class="sr-label">Ring Volume</div>
+        </div>
+        <input type="range" min="0" max="100" value="80" style="width:120px;accent-color:var(--gold)">
+      </div>
+      <div class="settings-row">
+        <div class="sr-left">
+          <div class="sr-label">Ringtone</div>
+        </div>
+        <select id="ringtoneSelect" onchange="localStorage.setItem('ringtone',this.value);playOneRing();" style="background:var(--light-raised);border:1px solid var(--light-border);color:var(--light-text);font-family:'DM Mono',monospace;font-size:13px;padding:8px 12px;outline:none">
+          <option value="default">Default</option>
+          <option value="classic">Classic Ring</option>
+          <option value="soft">Soft Chime</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- POS -->
+    <div class="setting      <!-- POS -->
+    <div class="settings-group">
+      <div class="settings-group-title">POS Integration · Square</div>
+
+      <div class="settings-row">
+        <div class="sr-left">
+          <div class="sr-label">Access Token</div>
+          <div class="sr-sub">Square Developer → Production</div>
+        </div>
+      </div>
+      <input class="sr-input" type="password" id="squareToken" placeholder="sq0atp-..." style="width:100%;margin-bottom:10px">
+
+      <div class="settings-row">
+        <div class="sr-left">
+          <div class="sr-label">Location ID</div>
+          <div class="sr-sub">squareup.com/dashboard → Locations → URL</div>
+        </div>
+      </div>
+      <input class="sr-input" type="text" id="squareLocationId" placeholder="LXXXXXXXXX" style="width:100%;margin-bottom:10px">
+
+      <div class="conn-status" id="squareConnStatus">
+        <div class="conn-dot" id="squareConnDot"></div>
+        <span class="conn-text" id="squareConnText">Not configured</span>
+      </div>
+
+      <div style="margin-top:10px;display:flex;gap:8px">
+        <button class="sr-btn" onclick="testSquareConnection()" style="flex:1;padding:11px">Test Connection</button>
+        <button class="sr-btn primary" onclick="saveSquareSettings()" style="flex:1;padding:11px">Save</button>
+      </div>
+
+      <div class="settings-row" style="margin-top:16px">
+        <div class="sr-left">
+          <div class="sr-label">Lightspeed</div>
+          <div class="sr-sub">Coming soon</div>
+        </div>
+        <button class="sr-btn" disabled style="opacity:0.3">Connect</button>
+      </div>
+        </div>
+
+    <!-- TELEPHONY -->
+    <div class="settings-group">
+      <div class="settings-group-title">Telephony</div>
+      <div class="settings-row">
+        <div class="sr-left">
+          <div class="sr-label">Provider</div>
+        </div>
+        <select id="ringtoneSelect" onchange="localStorage.setItem('ringtone',this.value);playOneRing();" style="background:var(--light-raised);border:1px solid var(--light-border);color:var(--light-text);font-family:'DM Mono',monospace;font-size:13px;padding:8px 12px;outline:none">
+          <option>Telnyx</option>
+          <option>Twilio</option>
+        </select>
+      </div>
+      <div class="settings-row">
+        <div class="sr-left">
+          <div class="sr-label">Emergency Forwarding</div>
+          <div class="sr-sub">If internet fails, forward to mobile</div>
+        </div>
+        <div class="toggle" onclick="this.classList.toggle('on')">
+          <div class="toggle-thumb"></div>
+        </div>
+      </div>
+      <div class="settings-row">
+        <div class="sr-left">
+          <div class="sr-label">Fallback Number</div>
+          <div class="sr-sub">Forward calls if internet fails</div>
+        </div>
+        <div style="display:flex;gap:6px;align-items:center">
+          <input class="sr-input" type="tel" id="fallbackNumber" placeholder="04XX XXX XXX" style="width:140px">
+          <button class="sr-btn primary" onclick="saveFallback()">Save</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ADD CUSTOMER MODAL -->
+<div class="modal-overlay" id="addModal">
+  <div class="modal-box">
+    <div class="modal-title">New Customer</div>
+    <div class="modal-sub">Add to database</div>
+    <div class="modal-fields">
+      <input class="modal-input" type="text" id="addName" placeholder="Full name *">
+      <input class="modal-input" type="tel" id="addPhone" placeholder="Phone number *">
+      <input class="modal-input" type="text" id="addAddress" placeholder="Delivery address">
+      <input class="modal-input" type="text" id="addNote" placeholder="Note (allergy, preference...)">
+    </div>
+    <div class="modal-actions">
+      <button class="modal-btn" onclick="saveAddCustomer()">Save Customer</button>
+      <button class="modal-btn cancel" onclick="closeAddModal()">Cancel</button>
+    </div>
+    <div class="modal-msg" id="addMsg"></div>
+  </div>
+</div>
+
+<!-- PRINT MODAL -->
+<div class="print-modal" id="printModal">
+  <div class="print-box">
+    <div class="print-title">Print Order</div>
+    <div class="type-row">
+      <button class="type-btn selected" id="btnDelivery" onclick="selectPrintType('DELIVERY')">Delivery</button>
+      <button class="type-btn" id="btnPickup" onclick="selectPrintType('PICKUP')">Pickup</button>
+    </div>
+    <div class="print-actions">
+      <button class="print-btn" onclick="doPrint()">Print</button>
+      <button class="print-cancel" onclick="closePrint()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- MAPS OVERLAY -->
+<div class="maps-overlay" id="mapsOverlay">
+  <div class="maps-box">
+    <div class="maps-addr-label">Delivery Address</div>
+    <div class="maps-addr-text" id="mapsAddrText"></div>
+    <div class="maps-dist-text" id="mapsDistText"></div>
+    <div id="staticMapContainer" style="width:100%;height:160px;background:#e0ddd5;margin-bottom:12px;border-radius:4px;overflow:hidden;display:flex;align-items:center;justify-content:center">
+      <span style="color:#888;font-size:12px;font-family:DM Mono,monospace">Map preview</span>
+    </div>
+    <a class="maps-open-btn" id="mapsLink" href="#">📍 Open in Google Maps</a>
+    <button id="mapsCallBtn" onclick="callBackFromMaps()" style="display:none;width:100%;background:#25D366;color:white;border:none;font-family:'DM Mono',monospace;font-size:11px;letter-spacing:2px;padding:13px;cursor:pointer;text-transform:uppercase;font-weight:700;margin-bottom:8px">📞 Call Back</button>
+    <button class="maps-close-btn" onclick="closeMaps()">Close</button>
+  </div>
+</div>
+
+<!-- PRINT RECEIPT -->
+<div id="printReceipt"><div id="receiptContent"></div></div>
+
+<script>
+// ── SWIPE ──
+let swipeStartX = 0;
+let swipeTarget = null;
+let currentSwiped = null;
+
+function initSwipe(el) {
+  const container = el.closest('.swipe-container') || el.parentElement;
+  let startX = 0;
+  let startY = 0;
+  let moved = false;
+
+  el.addEventListener('touchstart', e => {
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+    moved = false;
+  }, { passive: true });
+
+  el.addEventListener('touchmove', e => {
+    moved = true;
+  }, { passive: true });
+
+  el.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - startX;
+    const dy = e.changedTouches[0].clientY - startY;
+    
+    // Yatay hareket dikey hareketten büyük olmalı
+    if (Math.abs(dx) < Math.abs(dy) * 1.5) return;
+    
+    if (currentSwiped && currentSwiped !== container) {
+      currentSwiped.classList.remove('swiped-left','swiped-right');
+    }
+    
+    if (dx < -60) { 
+      container.classList.add('swiped-left'); 
+      container.classList.remove('swiped-right'); 
+      currentSwiped = container; 
+    } else if (dx > 60) { 
+      container.classList.add('swiped-right'); 
+      container.classList.remove('swiped-left'); 
+      currentSwiped = container; 
+    } else { 
+      container.classList.remove('swiped-left','swiped-right'); 
+    }
+  }, { passive: true });
+}
+
+function closeSwipe() {
+  if (currentSwiped) { currentSwiped.classList.remove('swiped-left','swiped-right'); currentSwiped = null; }
+}
+
+function callBack(idx) {
+  closeSwipe();
+  const c = callHistory[idx];
+  if (c && c.phone) window.location.href = 'tel:'+c.phone;
+}
+
+function openMapsForContact(idx) {
+  closeSwipe();
+  const c = callHistory[idx];
+  if (!c || !c.address) return;
+  const q = encodeURIComponent(c.address);
+  const url = 'https://www.google.com/maps/dir/?api=1&origin='+STORE_LAT+','+STORE_LNG+'&destination='+q+'&travelmode=driving';
+  window.open(url, '_blank');
+}
+
+function deleteCallItem(idx) {
+  closeSwipe();
+  if (!confirm('Delete this record?')) return;
+  callHistory.splice(idx, 1);
+  saveHistory();
+  renderHistory();
+}
+
+function editCallItem(idx) {
+  closeSwipe();
+  const c = callHistory[idx];
+  if (!c) return;
+  document.getElementById('addName').value = c.name || '';
+  document.getElementById('addPhone').value = c.phone || '';
+  document.getElementById('addAddress').value = c.address || '';
+  document.getElementById('addNote').value = c.note || '';
+  document.getElementById('addMsg').textContent = '';
+  // Save butonuna editIdx ekle
+  window._editIdx = idx;
+  document.getElementById('addModal').classList.add('open');
+}
+
+// ── DOCKET SETTINGS ──
+let paperWidth = 58;
+let fontSize = 'normal';
+
+function setPaperWidth(w) {
+  paperWidth = w;
+  localStorage.setItem('paper_width', w);
+  ['paper58btn','paper80btn'].forEach(id => {
+    const btn = document.getElementById(id);
+    if (!btn) return;
+    const active = (id==='paper58btn' && w===58) || (id==='paper80btn' && w===80);
+    btn.style.borderColor = active ? '#b8900a' : '#ccc';
+    btn.style.color = active ? '#b8900a' : '#888';
+    btn.style.background = active ? 'rgba(184,144,10,0.1)' : 'transparent';
+  });
+  updateDocketPreview();
+}
+
+function setFontSize(s) {
+  fontSize = s;
+  localStorage.setItem('font_size', s);
+  const map = {'small':'Sm','normal':'Md','large':'Lg'};
+  Object.entries(map).forEach(([size, suffix]) => {
+    const btn = document.getElementById('font'+suffix+'btn');
+    if (btn) {
+      btn.style.borderColor = size===s ? '#b8900a' : '#ccc';
+      btn.style.color = size===s ? '#b8900a' : '#888';
+      btn.style.background = size===s ? 'rgba(184,144,10,0.1)' : 'transparent';
+    }
+  });
+  updateDocketPreview();
+}
+
+function updateDocketPreview() {
+  const storeName = document.getElementById('settingsStoreName').value || 'Mordi Pizza & Pasta';
+  const fee = document.getElementById('settingsDeliveryFee').value || '7.00';
+  const footer = document.getElementById('docketFooter').value || '';
+  const showFee = document.getElementById('toggleDeliveryFee').classList.contains('on');
+  const showTime = document.getElementById('toggleTimeGiven').classList.contains('on');
+  const showBy = document.getElementById('toggleOrderBy').classList.contains('on');
+  const showNote = document.getElementById('toggleNote').classList.contains('on');
+  const showStore = document.getElementById('toggleStoreName').classList.contains('on');
+  const w = paperWidth === 58 ? 32 : 42;
+  const sep = '='.repeat(w);
+  const dash = '-'.repeat(w);
+  let lines = [];
+  if (showStore) { lines.push(sep); lines.push(storeName.substring(0,w).padStart(Math.floor((w+storeName.length)/2))); lines.push(sep); }
+  lines.push('Date: 15/03/2026  Time: 18:30');
+  lines.push(dash);
+  lines.push('DELIVERY');
+  if (showTime) lines.push('Time Given: ___________________');
+  lines.push(dash);
+  lines.push('Name:  John Smith');
+  lines.push('Phone: 0412 345 678');
+  lines.push('Addr:  42 Beach Rd, Mordialloc');
+  lines.push(dash);
+  if (showFee) { lines.push('Delivery Fee:       $'+fee); lines.push(dash); }
+  if (showBy) lines.push('Order Taken By: _______________');
+  if (showNote) { lines.push(dash); lines.push('Note: _________________________'); }
+  if (footer) { lines.push(sep); lines.push(footer.substring(0,w).padStart(Math.floor((w+footer.length)/2))); }
+  document.getElementById('docketPreview').textContent = lines.join('\n');
+}
+
+async function testSquareConnection() {
+  const token = document.getElementById('squareToken').value.trim();
+  const locationId = document.getElementById('squareLocationId').value.trim();
+  const dot = document.getElementById('squareConnDot');
+  const txt = document.getElementById('squareConnText');
+  if (!token) { txt.textContent = 'Enter Access Token first'; return; }
+  txt.textContent = 'Testing...';
+  try {
+    const res = await fetch('https://bogong-dial.vercel.app/api/locations', {
+      headers: { 'X-Square-Token': token }
+    });
+    const data = await res.json();
+    if (data && data.length > 0) {
+      dot.className = 'conn-dot ok';
+      txt.textContent = 'Connected — ' + data[0].name;
+    } else {
+      dot.className = 'conn-dot err';
+      txt.textContent = 'No locations found';
+    }
+  } catch(e) {
+    dot.className = 'conn-dot err';
+    txt.textContent = 'Connection failed';
+  }
+}
+
+function saveSquareSettings() {
+  const token = document.getElementById('squareToken').value.trim();
+  const locationId = document.getElementById('squareLocationId').value.trim();
+  if (token) localStorage.setItem('square_token', token);
+  if (locationId) localStorage.setItem('square_location_id', locationId);
+  const btn = event.target;
+  btn.textContent = 'Saved ✓';
+  btn.style.color = 'var(--green)';
+  setTimeout(() => { btn.textContent = 'Save'; btn.style.color = ''; }, 1500);
+}
+
+function saveFallback() {
+  const num = document.getElementById('fallbackNumber').value.trim();
+  if (!num) return;
+  localStorage.setItem('fallback_number', num);
+  const btn = event.target;
+  btn.textContent = 'Saved ✓';
+  btn.style.color = 'var(--green)';
+  setTimeout(() => { btn.textContent = 'Save'; btn.style.color = ''; }, 1500);
+}
+
+function saveDocketSettings() {
+  localStorage.setItem('paper_width', paperWidth);
+  localStorage.setItem('font_size', fontSize);
+  localStorage.setItem('docket_footer', document.getElementById('docketFooter').value);
+  localStorage.setItem('docket_show_fee', document.getElementById('toggleDeliveryFee').classList.contains('on'));
+  localStorage.setItem('docket_show_time', document.getElementById('toggleTimeGiven').classList.contains('on'));
+  localStorage.setItem('docket_show_by', document.getElementById('toggleOrderBy').classList.contains('on'));
+  localStorage.setItem('docket_show_note', document.getElementById('toggleNote').classList.contains('on'));
+  const btn = event.target;
+  btn.textContent = 'Saved ✓';
+  setTimeout(() => btn.textContent = 'Save', 1500);
+}
+
+// ── CONFIG ──
+const STORE_LAT = -38.006537;
+const STORE_LNG = 145.085749;
+let callHistory = [];
+let callQueue = [];
+let isCallActive = false;
+let currentDetailIdx = null;
+let printType = 'DELIVERY';
+let printerMode = 'bt';
+let btCharacteristic = null;
+let printerConnected = false;
+let callTimerInterval = null;
+let callSeconds = 0;
+let lastCallId = null;
+
+function today() { return new Date().toISOString().split('T')[0]; }
+function timeNow() { return new Date().toLocaleTimeString('en-AU',{hour:'2-digit',minute:'2-digit'}); }
+
+function formatPhone(p) {
+  if (!p) return '—';
+  const d = p.replace(/\D/g,'');
+  if (d.length === 11 && d.startsWith('61')) {
+    const l = '0' + d.slice(2);
+    return l.slice(0,4)+' '+l.slice(4,7)+' '+l.slice(7);
+  }
+  if (d.length === 10) return d.slice(0,4)+' '+d.slice(4,7)+' '+d.slice(7);
+  return p;
+}
+
+function getDistanceKm(address) {
+  if (!address) return null;
+  const a = address.toLowerCase();
+  const map = {
+    'mordialloc':0.5,'parkdale':1.8,'mentone':2.5,'aspendale':2.2,
+    'cheltenham':4.5,'highett':5.2,'moorabbin':6.1,'bentleigh':7.3,
+    'braeside':3.8,'bonbeach':3.1,'chelsea':4.2,'edithvale':5.8,
+    'carrum':6.5,'patterson lakes':4.8,'dingley':5.5,'heatherton':6.8,
+    'clayton':9.2,'springvale':8.4,'waterways':2.8
+  };
+  for (const [k,v] of Object.entries(map)) if (a.includes(k)) return v;
+  return null;
+}
+
+function getDistanceLabel(address) {
+  const km = getDistanceKm(address);
+  return km ? '~'+km.toFixed(1)+' km' : '';
+}
+
+function getETALabel(address) {
+  const km = getDistanceKm(address);
+  if (!km) return '';
+  const mins = Math.round(km / 0.5 + 3);
+  return '~'+mins+' min';
+}
+
+// ── STATUS ──
+function setStatus(state, text) {
+  const dot = document.getElementById('statusDot');
+  const txt = document.getElementById('statusText');
+  dot.className = 'status-dot' + (state==='active'?' ringing': state==='live'?' live':'');
+  txt.textContent = text;
+}
+
+// ── CALL TIMER ──
+function startTimer() {
+  callSeconds = 0;
+  callTimerInterval = setInterval(() => {
+    callSeconds++;
+    const m = Math.floor(callSeconds/60);
+    const s = callSeconds%60;
+    document.getElementById('callTimer').textContent = m+':'+(s<10?'0':'')+s;
+  }, 1000);
+}
+
+function stopTimer() {
+  clearInterval(callTimerInterval);
+  callTimerInterval = null;
+}
+
+// ── TABS ──
+function switchTab(tab) {
+  ['calls','missed','contacts'].forEach(t => {
+    document.getElementById('panel'+t.charAt(0).toUpperCase()+t.slice(1)).style.display = t===tab ? 'flex' : 'none';
+    const btn = document.getElementById('tab'+t.charAt(0).toUpperCase()+t.slice(1));
+    btn.classList.toggle('active', t===tab);
+  });
+  if (tab === 'contacts') loadContacts();
+}
+
+async function loadContacts() {
+  const el = document.getElementById('contactList');
+  el.innerHTML = '<div class="list-empty"><span class="empty-moth">🦋</span><span class="empty-text">Loading...</span></div>';
+  try {
+    const res = await fetch('https://bogong-dial.vercel.app/api/customers');
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data) && data.length > 0) {
+        allContacts = data.map(c => ({ phone: c.phone, name: c.name||'Unknown', address: c.address||'', note: c.note||'' }));
+        renderContacts(allContacts);
+        return;
+      }
+    }
+  } catch(e) {}
+  // Fallback: tüm localStorage geçmişi
+  const all = JSON.parse(localStorage.getItem('dial_history')||'[]');
+  const seen = {};
+  allContacts = [];
+  [...all].reverse().forEach(c => { if (!seen[c.phone]) { seen[c.phone]=true; allContacts.push(c); } });
+  renderContacts(allContacts);
+}
+
+// ── RENDER HISTORY ──
+function renderHistory() {
+  const list = document.getElementById('callList');
+  const count = document.getElementById('callCount');
+  count.textContent = callHistory.length + ' call' + (callHistory.length!==1?'s':'');
+  if (!callHistory.length) {
+    list.innerHTML = '<div class="list-empty"><span class="empty-moth">🦋</span><span class="empty-text">No calls yet</span></div>';
+    return;
+  }
+  const items = [...callHistory].reverse().map((c,i) => {
+    const idx = callHistory.length-1-i;
+    const div = document.createElement('div');
+    div.className = 'swipe-container';
+    div.innerHTML =
+      '<div class="swipe-actions-right">' +
+        '<button class="swipe-btn maps" onclick="openMapsForContact('+idx+')"><span class="swipe-btn-icon">📍</span>Maps</button>' +
+        '<button class="swipe-btn call" onclick="callBack('+idx+')"><span class="swipe-btn-icon">📞</span>Call</button>' +
+      '</div>' +
+      '<div class="swipe-content call-item'+(c.missed?' missed':'')+'" onclick="showDetail('+idx+')">' +
+        '<div class="call-item-left">' +
+          '<div class="ci-time">'+c.time+'</div>' +
+          '<div class="ci-name">'+(c.name||'Unknown')+'</div>' +
+          '<div class="ci-addr">'+(c.address||'No address')+'</div>' +
+        '</div>' +
+        (c.isNew ? '<span class="ci-badge new">New</span>' : '') +
+        (c.missed ? '<span class="ci-badge missed-tag">Missed</span>' : '') +
+      '</div>' +
+      '<div class="swipe-actions-left">' +
+        '<button class="swipe-btn edit" onclick="editCallItem('+idx+')"><span class="swipe-btn-icon">✏️</span>Edit</button>' +
+        '<button class="swipe-btn delete" onclick="deleteCallItem('+idx+')"><span class="swipe-btn-icon">🗑</span>Delete</button>' +
+      '</div>';
+    const sc = div.querySelector('.swipe-content');
+    if (sc) initSwipe(sc);
+    return div;
+  });
+  list.innerHTML = '';
+  items.forEach(item => list.appendChild(item));
+
+  // Missed list
+  const missedList = document.getElementById('missedList');
+  const missedCount = document.getElementById('missedCount');
+  const missedItems = [...callHistory].filter(c => c.missed).reverse();
+  missedCount.textContent = missedItems.length;
+  if (!missedItems.length) {
+    missedList.innerHTML = '<div class="list-empty"><span class="empty-moth">🦋</span><span class="empty-text">No missed calls</span></div>';
+  } else {
+    const mItems = missedItems.map(c => {
+      const idx = callHistory.indexOf(c);
+      const div = document.createElement('div');
+      div.className = 'swipe-container';
+      div.innerHTML =
+        '<div class="swipe-actions-right">' +
+          '<button class="swipe-btn call" onclick="callBack('+idx+')"><span class="swipe-btn-icon">📞</span>Call</button>' +
+        '</div>' +
+        '<div class="swipe-content call-item missed">' +
+          '<div class="call-item-left">' +
+            '<div class="ci-time">'+c.time+'</div>' +
+            '<div class="ci-name">'+(c.name||'Unknown')+'</div>' +
+            '<div class="ci-addr">'+(c.address||'No address')+'</div>' +
+          '</div>' +
+          '<span class="ci-badge missed-tag">Missed</span>' +
+        '</div>' +
+        '<div class="swipe-actions-left">' +
+          '<button class="swipe-btn delete" onclick="deleteCallItem('+idx+')"><span class="swipe-btn-icon">🗑</span>Delete</button>' +
+        '</div>';
+      const sc = div.querySelector('.swipe-content');
+      if (sc) initSwipe(sc);
+      return div;
+    });
+    missedList.innerHTML = '';
+    mItems.forEach(item => missedList.appendChild(item));
+  }
+}
+
+// ── SHOW DETAIL ──
+function showDetail(idx) {
+  currentDetailIdx = idx;
+  const c = callHistory[idx];
+  if (!c) return;
+  // Edit modal aç
+  document.getElementById('addName').value = c.name || '';
+  document.getElementById('addPhone').value = c.phone || '';
+  document.getElementById('addAddress').value = c.address || '';
+  document.getElementById('addNote').value = c.note || '';
+  document.getElementById('addMsg').textContent = '';
+  window._editIdx = idx;
+  document.getElementById('addModal').classList.add('open');
+}
+
+// ── INCOMING ──
+let audioCtx = null;
+let soundEnabled = false;
+
+function activateSound() {
+  try {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    soundEnabled = true;
+    document.getElementById('soundActivateBtn').style.display = 'none';
+    // Test beep
+    playBeep(880, 0.1, 0.1);
+  } catch(e) {}
+}
+
+function playBeep(freq, vol, dur) {
+  if (!audioCtx || !soundEnabled) return;
+  try {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.frequency.value = freq;
+    gain.gain.value = vol;
+    osc.start();
+    osc.stop(audioCtx.currentTime + dur);
+  } catch(e) {}
+}
+
+let ringInterval = null;
+let ringToneType = 'default'; // default, classic, soft
+
+function getRingTone() {
+  return localStorage.getItem('ringtone') || 'default';
+}
+
+function playOneRing() {
+  const tone = getRingTone();
+  if (tone === 'classic') {
+    // Klasik telefon tonu
+    playBeep(480, 0.35, 0.2);
+    setTimeout(() => playBeep(480, 0.35, 0.2), 300);
+  } else if (tone === 'soft') {
+    // Yumuşak chime
+    playBeep(1047, 0.2, 0.3);
+    setTimeout(() => playBeep(784, 0.2, 0.3), 350);
+    setTimeout(() => playBeep(523, 0.15, 0.4), 700);
+  } else {
+    // Default
+    playBeep(880, 0.3, 0.15);
+    setTimeout(() => playBeep(660, 0.3, 0.15), 250);
+    setTimeout(() => playBeep(880, 0.3, 0.15), 500);
+    setTimeout(() => playBeep(660, 0.3, 0.15), 750);
+  }
+}
+
+function startRinging() {
+  if (!soundEnabled) {
+    document.getElementById('soundActivateBtn').style.display = 'block';
+    return;
+  }
+  stopRinging();
+  playOneRing();
+  ringInterval = setInterval(() => {
+    if (!isCallActive) { stopRinging(); return; }
+    playOneRing();
+  }, 2500);
+}
+
+function stopRinging() {
+  if (ringInterval) { clearInterval(ringInterval); ringInterval = null; }
+}
+
+function playRingtone() {
+  startRinging();
+}
+
+// Sayfa yüklenince ses aktivasyonu için butonu göster
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    if (!soundEnabled && document.getElementById('soundActivateBtn')) {
+      document.getElementById('soundActivateBtn').style.display = 'block';
+    }
+  }, 1500);
+});
+
+function handleIncomingCall(data) {
+  const entry = {
+    date: today(), time: timeNow(),
+    phone: data.phone, name: data.name||'Unknown',
+    address: data.address||'', isNew: data.isNew||false,
+    orders: data.orders||[], note: data.note||'', missed: false
+  };
+  callHistory.push(entry);
+  saveHistory();
+  renderHistory();
+  notifySettings();
+  startRinging();
+  // Answer butonunu WebRTC için sıfırla
+  const ab = document.getElementById('answerBtn');
+  const al = document.getElementById('answerLabel');
+  if (ab) { ab.onclick = answerCall; ab.style.background = '#25D366'; ab.style.borderColor = '#25D366'; }
+  if (al) al.textContent = 'Answer';
+  if (isCallActive) { callQueue.push(data); updateQueueBadge(); return; }
+  showCall(data, false);
+}
+
+function showCall(data, isEdit) {
+  if (!isEdit) {
+    isCallActive = true;
+    setStatus('active','Incoming Call');
+    startTimer();
+  }
+  // Call header - sadece gerçek arama gelince göster
+  const callHeader = document.getElementById('callHeader');
+  if (callHeader) callHeader.style.display = isEdit ? 'none' : 'flex';
+  // Answer butonu - edit modunda "Call Back" olur
+  const answerBtn = document.getElementById('answerBtn');
+  const answerLabel = document.getElementById('answerLabel');
+  const holdBtn = document.getElementById('holdBtn');
+  if (answerBtn && isEdit) {
+    answerLabel.textContent = 'Call Back';
+    answerBtn.style.background = '#4a7dc8';
+    answerBtn.style.borderColor = '#4a7dc8';
+    answerBtn.onclick = () => { editCallItem(currentDetailIdx); };
+    if (holdBtn) holdBtn.style.display = 'none';
+  } else if (answerBtn) {
+    answerLabel.textContent = 'Answer';
+    answerBtn.style.background = '#25D366';
+    answerBtn.style.borderColor = '#25D366';
+    answerBtn.onclick = answerCall;
+    if (holdBtn) holdBtn.style.display = '';
+  }
+  if (data.isNew || !data.name || data.name==='Unknown') {
+    document.getElementById('newPhone').textContent = formatPhone(data.phone);
+    document.getElementById('quickName').value = '';
+    document.getElementById('quickAddress').value = '';
+    document.getElementById('quickNote').value = '';
+    document.getElementById('idleState').style.display = 'none';
+    document.getElementById('incomingState').style.display = 'none';
+    document.getElementById('newState').style.display = 'flex';
+  } else {
+    document.getElementById('callerName').textContent = data.name;
+    document.getElementById('callerPhone').textContent = formatPhone(data.phone);
+    document.getElementById('callerAddress').textContent = data.address||'No address';
+    const distLabel = getDistanceLabel(data.address);
+    const etaLabel = getETALabel(data.address);
+    document.getElementById('callerDistance').textContent = distLabel || '—';
+    document.getElementById('callerETA').textContent = etaLabel || '';
+    // Note
+    const noteCard = document.getElementById('noteCard');
+    if (data.note) {
+      document.getElementById('noteText').textContent = data.note;
+      noteCard.style.display = 'flex';
+    } else { noteCard.style.display = 'none'; }
+    // Orders
+    const ol = document.getElementById('ordersList');
+    if (data.orders && data.orders.length) {
+      ol.innerHTML = data.orders.slice(0,3).map(o =>
+        '<div class="order-item">' +
+          '<span class="order-name">'+o.name+'</span>' +
+          '<div class="order-meta">' +
+            '<span class="order-date">'+o.date+'</span>' +
+            '<span class="order-amt">'+o.amount+'</span>' +
+            '<button class="reorder-btn" onclick="quickReorder(\''+o.name.replace(/'/g,'&#39;')+'\')">Reorder</button>' +
+          '</div>' +
+        '</div>'
+      ).join('');
+    } else { ol.innerHTML = '<div style="font-size:12px;color:var(--text-dim);padding:8px 0">No order history</div>'; }
+    document.getElementById('idleState').style.display = 'none';
+    document.getElementById('newState').style.display = 'none';
+    document.getElementById('incomingState').style.display = 'flex';
+    setOrderType('DELIVERY'); // Default delivery
+  }
+}
+
+function closeCall(missed) {
+  stopTimer();
+  stopRinging();
+  // Eğer answer edilmemişse missed olarak işaretle
+  if (missed && callHistory.length > 0) {
+    const last = callHistory[callHistory.length - 1];
+    if (last && last.date === today()) { last.missed = true; saveHistory(); renderHistory(); }
+  }
+  document.getElementById('incomingState').style.display = 'none';
+  document.getElementById('newState').style.display = 'none';
+  // Call header'ı sıfırla
+  const callHeader = document.getElementById('callHeader');
+  if (callHeader) callHeader.style.display = 'flex';
+  isCallActive = false;
+  if (callQueue.length > 0) {
+    const next = callQueue.shift();
+    updateQueueBadge();
+    setTimeout(() => showCall(next), 200);
+  } else {
+    document.getElementById('idleState').style.display = 'flex';
+    setStatus('live','Waiting');
+  }
+}
+
+async function answerCall() {
+  stopRinging();
+  try {
+    await navigator.mediaDevices.getUserMedia({ audio: true });
+  } catch(e) {
+    showToast && showToast('Microphone permission required!', 'red');
+    return;
+  }
+  console.log('[ANSWER] twilioConnection:', window.twilioConnection);
+  if (window.twilioConnection) {
+    window.twilioConnection.accept({ rtcConstraints: { audio: true } });
+    showToast && showToast('📞 Connected!', 'green');
+    activateCallUI();
+  }
+}
+
+function activateCallUI() {
+  // Eğer new state açıksa incoming state'e geç - müşteri bilgilerini göster
+  const newState = document.getElementById('newState');
+  const incomingState = document.getElementById('incomingState');
+  const idleState = document.getElementById('idleState');
+  if (newState && newState.style.display !== 'none') {
+    newState.style.display = 'none';
+    // Aktif arama için basit ekran göster
+    if (incomingState) {
+      incomingState.style.display = 'flex';
+      // Bilgileri doldur
+      const nameEl = document.getElementById('callerName');
+      const phoneEl = document.getElementById('callerPhone');
+      if (nameEl) nameEl.textContent = 'New Caller';
+      const lastCall = callHistory[callHistory.length - 1];
+      if (lastCall && phoneEl) phoneEl.textContent = lastCall.phone || '';
+    }
+  }
+  
+  // Badge
+  const badgeText = document.getElementById('callBadgeText');
+  if (badgeText) badgeText.textContent = 'Call Active';
+  const badge = document.querySelector('.call-badge');
+  if (badge) badge.style.background = 'rgba(37,211,102,0.2)';
+  
+  // Answer → Hang Up
+  const answerBtn = document.getElementById('answerBtn');
+  const answerLabel = document.getElementById('answerLabel');
+  if (answerBtn) {
+    answerBtn.style.background = '#CC0000';
+    answerBtn.style.borderColor = '#CC0000';
+    answerBtn.onclick = hangupCall;
+  }
+  if (answerLabel) answerLabel.textContent = 'Hang Up';
+  
+  // Hold butonu aktif
+  const holdBtn = document.getElementById('holdBtn');
+  if (holdBtn) holdBtn.style.display = '';
+  
+  // Close → Hang Up
+  const closeBtn = document.querySelector('#mainCallActions .action-btn.end');
+  if (closeBtn) closeBtn.onclick = hangupCall;
+  
+  // Timer başlat
+  startTimer();
+}
+
+function hangupCall() {
+  if (window.twilioConnection) {
+    window.twilioConnection.disconnect();
+    window.twilioConnection = null;
+  }
+  stopTimer();
+  stopRinging && stopRinging();
+  closeCall(false);
+}
+
+function openEditCurrent() {
+  // Mevcut aramanın detay/edit formunu aç
+  const c = callHistory[callHistory.length - 1];
+  if (!c) return;
+  document.getElementById('addName').value = c.name || '';
+  document.getElementById('addPhone').value = c.phone || '';
+  document.getElementById('addAddress').value = c.address || '';
+  document.getElementById('addNote').value = c.note || '';
+  document.getElementById('addModal').classList.add('open');
+}
+
+async function answerWithoutSave() {
+  stopRinging();
+  try { await navigator.mediaDevices.getUserMedia({ audio: true }); } catch(e) {}
+  if (window.twilioConnection) {
+    window.twilioConnection.accept({ rtcConstraints: { audio: true } });
+    showToast && showToast('📞 Connected!', 'green');
+    activateCallUI();
+  }
+}
+function holdCall() { /* WebRTC hold */ }
+function quickReorder(name) { alert('Reorder: '+name+'\n(Square integration coming soon)'); }
+
+async function saveNewAndAnswer() {
+  const name = document.getElementById('quickName').value.trim();
+  const address = document.getElementById('quickAddress').value.trim();
+  if (!name) return;
+
+  const last = callHistory[callHistory.length - 1];
+  if (last) {
+    last.name = name;
+    last.address = address;
+    last.isNew = false;
+    saveHistory();
+    renderHistory();
+  }
+
+  // Save to Square
+  try {
+    const nameParts = name.split(' ');
+    const given = nameParts[0] || '';
+    const family = nameParts.slice(1).join(' ') || '';
+    await fetch('/api/save-customer', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        phone: last ? last.phone : '',
+        givenName: given,
+        familyName: family,
+        address: address
+      })
+    });
+  } catch(e) {
+    console.log('Square save error:', e.message);
+  }
+
+  closeCall();
+}
+
+async function saveNewCustomer() {
+  const name = document.getElementById('quickName').value.trim();
+  const address = document.getElementById('quickAddress').value.trim();
+  const note = document.getElementById('quickNote') ? document.getElementById('quickNote').value.trim() : '';
+  if (!name) { document.getElementById('quickName').style.borderColor='#CC0000'; document.getElementById('quickName').focus(); return; }
+
+  const last = callHistory[callHistory.length - 1];
+  if (last) {
+    last.name = name;
+    last.address = address;
+    last.note = note;
+    last.isNew = false;
+    saveHistory();
+    renderHistory();
+  }
+
+  // Supabase'e kaydet (arka planda)
+  try {
+    fetch('https://bogong-dial.vercel.app/api/customers', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        phone: last ? last.phone : '',
+        name: name,
+        address: address,
+        note: note
+      })
+    });
+  } catch(e) {}
+
+  // Görsel feedback
+  const saveBtn = document.querySelector('#newState .action-btn.answer');
+  if (saveBtn) {
+    const origIcon = saveBtn.querySelector('.action-icon').textContent;
+    saveBtn.querySelector('.action-icon').textContent = '✓';
+    setTimeout(() => {
+      saveBtn.querySelector('.action-icon').textContent = origIcon;
+      closeCall(false);
+    }, 600);
+  } else {
+    closeCall(false);
+  }
+}
+
+// ── QUEUE ──
+function updateQueueBadge() {
+  const badge = document.getElementById('queueBadge');
+  const count = document.getElementById('queueCount');
+  if (callQueue.length > 0) {
+    badge.classList.add('show');
+    count.textContent = callQueue.length+' waiting';
+  } else { badge.classList.remove('show'); }
+}
+
+function showNextQueue() {
+  if (!callQueue.length) return;
+  const next = callQueue.shift();
+  updateQueueBadge();
+  if (!isCallActive) showCall(next);
+}
+
+// ── CONTACTS ──
+function renderContacts(list) {
+  const el = document.getElementById('contactList');
+  if (!list.length) { el.innerHTML = '<div class="list-empty"><span class="empty-moth">🦋</span><span class="empty-text">No contacts</span></div>'; return; }
+  const seen = {}; const unique = [];
+  [...list].reverse().forEach(c => { if (!seen[c.phone]) { seen[c.phone]=true; unique.push(c); } });
+  el.innerHTML = unique.map((c,i) => {
+    const idx = callHistory.indexOf(c);
+    return '<div class="call-item" onclick="showDetail('+idx+')">' +
+      '<div class="call-item-left">' +
+        '<div class="ci-name">'+(c.name||'Unknown')+'</div>' +
+        '<div class="ci-time">'+formatPhone(c.phone)+'</div>' +
+        '<div class="ci-addr">'+(c.address||'No address')+'</div>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function searchContacts(q) {
+  const filtered = q ? callHistory.filter(c =>
+    (c.name&&c.name.toLowerCase().includes(q.toLowerCase())) ||
+    (c.phone&&c.phone.includes(q)) ||
+    (c.address&&c.address.toLowerCase().includes(q.toLowerCase()))
+  ) : callHistory;
+  renderContacts(filtered);
+}
+
+// ── MODALS ──
+function openAddModal() { document.getElementById('addModal').classList.add('open'); }
+function closeAddModal() { document.getElementById('addModal').classList.remove('open'); }
+
+async function saveAddCustomer() {
+  const name = document.getElementById('addName').value.trim();
+  const phone = document.getElementById('addPhone').value.trim();
+  const address = document.getElementById('addAddress').value.trim();
+  const note = document.getElementById('addNote').value.trim();
+  const msg = document.getElementById('addMsg');
+
+  if (!name || !phone) {
+    msg.style.color = 'var(--red)';
+    msg.textContent = 'Name and phone are required';
+    return;
+  }
+
+  // Edit mode - callHistory güncelle
+  if (window._editIdx !== undefined) {
+    callHistory[window._editIdx].name = name;
+    callHistory[window._editIdx].address = address;
+    callHistory[window._editIdx].note = note;
+    saveHistory();
+    renderHistory();
+    window._editIdx = undefined;
+  }
+
+  msg.style.color = 'var(--text-mid)';
+  msg.textContent = 'Saving...';
+
+  // Her durumda kaydet ve kapat
+  msg.style.color = 'var(--green)';
+  msg.textContent = 'Saved ✓';
+  
+  // Supabase'e gönder (arka planda)
+  try {
+    fetch('https://bogong-dial.vercel.app/api/customers', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phone, name, address, note })
+    });
+  } catch(e) {}
+  
+  setTimeout(() => {
+    document.getElementById('addModal').classList.remove('open');
+    document.getElementById('addName').value = '';
+    document.getElementById('addPhone').value = '';
+    document.getElementById('addAddress').value = '';
+    document.getElementById('addNote').value = '';
+    msg.textContent = '';
+    window._editIdx = undefined;
+  }, 800);
+}
+
+// ── PRINT ──
+function openPrint() { document.getElementById('printModal').classList.add('open'); }
+function closePrint() { document.getElementById('printModal').classList.remove('open'); }
+
+function selectPrintType(t) {
+  printType = t;
+  document.getElementById('btnDelivery').className = 'type-btn'+(t==='DELIVERY'?' selected':'');
+  document.getElementById('btnPickup').className = 'type-btn'+(t==='PICKUP'?' selected':'');
+}
+
+function doPrint() {
+  const name = document.getElementById('callerName').textContent;
+  const phone = document.getElementById('callerPhone').textContent;
+  const address = document.getElementById('callerAddress').textContent;
+  const storeName = localStorage.getItem('store_name')||'BogongAI';
+  const fee = localStorage.getItem('delivery_fee')||'7.00';
+  printType = currentOrderType; // Use selected order type
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('en-AU');
+  const timeStr = now.toLocaleTimeString('en-AU',{hour:'2-digit',minute:'2-digit'});
+  const receiptText = [
+    '================================',
+    '     '+storeName,
+    '================================',
+    'Date: '+dateStr+'  Time: '+timeStr,
+    '--------------------------------',
+    printType,
+    'Time Given: ___________________',
+    '--------------------------------',
+    'Name:  '+name,
+    'Phone: '+phone,
+    ...(printType==='DELIVERY'?['Addr:  '+address]:{}),
+    '--------------------------------',
+    ...(printType==='DELIVERY'?['Delivery Fee:         $'+fee,'--------------------------------']:{}),
+    'Order Taken By: _______________',
+    '--------------------------------',
+    'Note: _________________________',
+  ].join('\n');
+  const html = receiptText.replace(/\n/g,'<br>').replace(/ /g,'&nbsp;');
+  document.getElementById('receiptContent').innerHTML = '<div style="font-family:monospace;font-size:12px">'+html+'</div>';
+  closePrint();
+  sendToPrinter(receiptText).then(sent => {
+    if (!sent) {
+      document.getElementById('printReceipt').style.display='block';
+      setTimeout(() => { window.print(); document.getElementById('printReceipt').style.display='none'; }, 100);
+    }
+  });
+}
+
+// ── MAPS ──
+// ── ORDER TYPE ──
+let currentOrderType = 'DELIVERY';
+
+function setOrderType(type) {
+  currentOrderType = type;
+  const delivBtn = document.getElementById('btnTypeDelivery');
+  const pickBtn = document.getElementById('btnTypePickup');
+  if (delivBtn) {
+    delivBtn.style.background = type==='DELIVERY' ? 'rgba(180,140,40,0.15)' : 'transparent';
+    delivBtn.style.borderColor = type==='DELIVERY' ? 'rgba(180,140,40,0.5)' : 'var(--light-border)';
+    delivBtn.style.color = type==='DELIVERY' ? 'var(--gold)' : 'var(--light-text-mid)';
+  }
+  if (pickBtn) {
+    pickBtn.style.background = type==='PICKUP' ? 'rgba(180,140,40,0.15)' : 'transparent';
+    pickBtn.style.borderColor = type==='PICKUP' ? 'rgba(180,140,40,0.5)' : 'var(--light-border)';
+    pickBtn.style.color = type==='PICKUP' ? 'var(--gold)' : 'var(--light-text-mid)';
+  }
+  // Print type'ı da güncelle
+  printType = type;
+}
+
+function openMaps() {
+  const addr = document.getElementById('callerAddress').textContent;
+  const dist = document.getElementById('callerDistance').textContent;
+  const eta = document.getElementById('callerETA').textContent;
+  document.getElementById('mapsAddrText').textContent = addr;
+  document.getElementById('mapsDistText').textContent = dist + (eta?' · '+eta:'');
+  const q = encodeURIComponent(addr);
+  const mapsUrl = 'https://www.google.com/maps/dir/?api=1&origin='+STORE_LAT+','+STORE_LNG+'&destination='+q+'&travelmode=driving';
+  document.getElementById('mapsLink').href = mapsUrl;
+  // Static map embed
+  const mapContainer = document.getElementById('staticMapContainer');
+  if (mapContainer) {
+    mapContainer.innerHTML = '<iframe width="100%" height="160" frameborder="0" style="border:0" src="https://maps.google.com/maps?q='+q+'&output=embed&zoom=14" allowfullscreen></iframe>';
+  }
+  document.getElementById('mapsOverlay').classList.add('open');
+  // Call back butonu - telefon varsa göster
+  const phoneEl = document.getElementById('callerPhone');
+  const callBtn = document.getElementById('mapsCallBtn');
+  if (callBtn && phoneEl && phoneEl.textContent && phoneEl.textContent !== '—') {
+    callBtn.style.display = 'block';
+  }
+}
+function closeMaps() { document.getElementById('mapsOverlay').classList.remove('open'); }
+
+function callBackFromMaps() {
+  const phone = document.getElementById('callerPhone') ? document.getElementById('callerPhone').textContent : '';
+  if (phone && phone !== '—') window.location.href = 'tel:' + phone.replace(/\s/g,'');
+}
+
+// ── SETTINGS ──
+function openSettings() {
+  document.getElementById('settingsPanel').classList.add('open');
+  document.getElementById('settingsStoreName').value = localStorage.getItem('store_name')||'BogongAI';
+  document.getElementById('settingsDeliveryFee').value = localStorage.getItem('delivery_fee')||'7.00';
+  if (document.getElementById('settingsStoreAddr')) document.getElementById('settingsStoreAddr').value = localStorage.getItem('store_addr')||'558A Main St, Mordialloc';
+  if (document.getElementById('fallbackNumber')) document.getElementById('fallbackNumber').value = localStorage.getItem('fallback_number')||'';
+  if (document.getElementById('squareToken')) document.getElementById('squareToken').value = localStorage.getItem('square_token')||'';
+  if (document.getElementById('squareLocationId')) document.getElementById('squareLocationId').value = localStorage.getItem('square_location_id')||'';
+  if (isCallActive) document.getElementById('settingsCallAlert').classList.add('show');
+  loadPrinterSettings();
+  const ringtoneSelect = document.getElementById('ringtoneSelect');
+  if (ringtoneSelect) ringtoneSelect.value = localStorage.getItem('ringtone') || 'default';
+  // Restore saved font/paper settings
+  const savedPaper = parseInt(localStorage.getItem('paper_width')||'58');
+  const savedFont = localStorage.getItem('font_size')||'normal';
+  paperWidth = savedPaper;
+  fontSize = savedFont;
+  setPaperWidth(savedPaper);
+  setFontSize(savedFont);
+}
+
+function closeSettings() {
+  document.getElementById('settingsPanel').classList.remove('open');
+  document.getElementById('settingsCallAlert').classList.remove('show');
+}
+
+function saveStoreSettings() {
+  const name = document.getElementById('settingsStoreName').value.trim();
+  const fee = document.getElementById('settingsDeliveryFee').value.trim();
+  const addr = document.getElementById('settingsStoreAddr').value.trim();
+  localStorage.setItem('store_name', name);
+  localStorage.setItem('delivery_fee', fee);
+  localStorage.setItem('store_addr', addr);
+  document.getElementById('storeName').textContent = name;
+  // Visual feedback
+  const btn = document.querySelector('[onclick="saveStoreSettings()"]');
+  if (btn) { const orig = btn.textContent; btn.textContent = 'Saved ✓'; btn.style.color='var(--green)'; btn.style.borderColor='var(--green)'; setTimeout(()=>{ btn.textContent=orig; btn.style.color=''; btn.style.borderColor=''; },1500); }
+  updateDocketPreview();
+}
+
+function setPrinterMode(mode) {
+  printerMode = mode;
+  document.getElementById('printerBTSection').style.display = mode==='bt'?'block':'none';
+  document.getElementById('printerIPSection').style.display = mode==='ip'?'block':'none';
+  document.getElementById('printerBTBtn').style.borderColor = mode==='bt'?'var(--border-gold)':'var(--border)';
+  document.getElementById('printerBTBtn').style.color = mode==='bt'?'var(--gold)':'var(--text-dim)';
+  document.getElementById('printerIPBtn').style.borderColor = mode==='ip'?'var(--border-gold)':'var(--border)';
+  document.getElementById('printerIPBtn').style.color = mode==='ip'?'var(--gold)':'var(--text-dim)';
+}
+
+async function scanBluetooth() {
+  if (!navigator.bluetooth) { alert('Web Bluetooth not supported. Use Chrome on Android.'); return; }
+  try {
+    const device = await navigator.bluetooth.requestDevice({
+      acceptAllDevices: true,
+      optionalServices: ['000018f0-0000-1000-8000-00805f9b34fb','00002af1-0000-1000-8000-00805f9b34fb','0000ff00-0000-1000-8000-00805f9b34fb']
+    });
+    window._btDevice = device;
+    document.getElementById('btPrinterName').textContent = device.name||'Device found — tap Save to connect';
+  } catch(e) { if (e.name !== 'NotFoundError') alert('Scan error: '+e.message); }
+}
+
+async function savePrinterSettings() {
+  if (printerMode === 'ip') {
+    const ip = document.getElementById('printerIPInput').value.trim();
+    if (ip) { localStorage.setItem('printer_ip', ip); localStorage.setItem('printer_mode','ip'); }
+    document.getElementById('printerConnDot').className = 'conn-dot ok';
+    document.getElementById('printerConnText').textContent = 'IP saved — '+ip;
+  } else if (window._btDevice) {
+    try {
+      const server = await window._btDevice.gatt.connect();
+      const services = await server.getPrimaryServices().catch(() => []);
+      for (const s of services) {
+        const chars = await s.getCharacteristics().catch(()=>[]);
+        for (const c of chars) {
+          if (c.properties.write || c.properties.writeWithoutResponse) {
+            btCharacteristic = c; printerConnected = true; break;
+          }
+        }
+        if (btCharacteristic) break;
+      }
+      localStorage.setItem('printer_mode','bt');
+      document.getElementById('printerConnDot').className = 'conn-dot ok';
+      document.getElementById('printerConnText').textContent = 'Connected — '+(window._btDevice.name||'Printer');
+      document.getElementById('btPrinterName').textContent = window._btDevice.name||'Connected';
+    } catch(e) {
+      document.getElementById('printerConnDot').className = 'conn-dot err';
+      document.getElementById('printerConnText').textContent = 'Connection failed';
+    }
+  }
+}
+
+
+
+
+function notifySettings() {
+  if (document.getElementById('settingsPanel').classList.contains('open')) {
+    document.getElementById('settingsCallAlert').classList.add('show');
+  }
+}
+
+// ── HISTORY ──
+function saveHistory() {
+  const all = JSON.parse(localStorage.getItem('dial_history') || '[]')
+    .filter(c => c.date !== today());
+  localStorage.setItem('dial_history', JSON.stringify([...all, ...callHistory]));
+}
+
+// ── POLL ──
+// ── DEMO MODE ──
+var demoCustomers = [
+  { name:"James Wilson", phone:"0412 345 678", address:"42 Beach Rd, Mordialloc VIC 3195", note:"Allergic to nuts", isNew:false, orders:[{name:"Margherita Pizza, Garlic Bread",date:"12 Mar",amount:"$32.50"},{name:"BBQ Chicken Pizza",date:"5 Mar",amount:"$28.00"}] },
+  { name:"Sarah Chen", phone:"0423 456 789", address:"15 Park St, Cheltenham VIC 3192", note:"VIP customer ⭐", isNew:false, orders:[{name:"Seafood Pizza, Tiramisu",date:"10 Mar",amount:"$45.00"}] },
+  { name:"Michael Patel", phone:"0434 567 890", address:"8 Garden Ave, Mentone VIC 3194", note:"", isNew:false, orders:[] },
+  { name:"Emma Thompson", phone:"0445 678 901", address:"23 Ocean Blvd, Parkdale VIC 3195", note:"Extra spicy please 🌶️", isNew:false, orders:[{name:"Pepperoni Pizza x2",date:"8 Mar",amount:"$54.00"},{name:"Hawaiian Pizza",date:"1 Mar",amount:"$26.00"}] },
+  { name:"Unknown Caller", phone:"0456 789 012", address:"", note:"", isNew:true, orders:[] }
+];
+var demoIdx = 0;
+var demoActive = false;
+
+async function pollForCalls() {}
+
+function triggerDemoCall() {
+  if (demoActive) return;
+  demoActive = true;
+  var c = demoCustomers[demoIdx % demoCustomers.length];
+  demoIdx++;
+  var data = { callId: Date.now().toString(), name: c.name, phone: c.phone, address: c.address, note: c.note, isNew: c.isNew || false, orders: c.orders || [] };
+  lastCallId = data.callId;
+  handleIncomingCall(data);
+  setTimeout(function() { demoActive = false; }, 10000);
+}
+
+setInterval(triggerDemoCall, 3000);
+
+// Load today's history
+callHistory = JSON.parse(localStorage.getItem('dial_history') || '[]')
+  .filter(c => c.date === today());
+renderHistory();
+setStatus('live', 'Waiting');
+
+// Store adını yükle
+const savedStoreName = localStorage.getItem('store_name');
+if (savedStoreName) document.getElementById('storeName').textContent = savedStoreName;
+
+// Splash screen kaldır
+setTimeout(() => {
+  const splash = document.getElementById('splashScreen');
+  if (splash) {
+    splash.style.animation = 'splashFadeOut 0.8s ease forwards';
+    setTimeout(() => splash.remove(), 800);
+  }
+}, 2500);
+
+// Poll every 3 seconds
+setInterval(pollForCalls, 3000);
+
+// ── BLUETOOTH PRINTER - SCAN BASED ──
+const printers = {1:null, 2:null, 3:null};
+let btScannedDevice = null; // seçilen cihaz geçici tutuluyor
+
+function getBT() {
+  return window.bluetoothSerial || null;
+}
+
+function showToast(msg, type) {
+  const old = document.getElementById('btToast');
+  if (old) old.remove();
+  const t = document.createElement('div');
+  t.id = 'btToast';
+  t.style.cssText = 'position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:'+(type==='green'?'#25D366':'#CC0000')+';color:white;font-family:monospace;font-size:13px;padding:12px 24px;z-index:9999;border-radius:6px;font-weight:600';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 3000);
+}
+
+// ── SCAN ──
+function scanBluetoothDevices() {
+  const bt = getBT();
+  const scanBtn = document.getElementById('scanBtn');
+  const listEl = document.getElementById('btScanList');
+  const itemsEl = document.getElementById('btDeviceItems');
+
+  if (!bt) {
+    showToast('Bluetooth plugin not available', 'red');
+    itemsEl.innerHTML = '<div style="padding:12px;font-family:\'DM Mono\',monospace;font-size:11px;color:#cc4444">bluetoothSerial plugin not found. Rebuild APK.</div>';
+    listEl.style.display = 'block';
+    return;
+  }
+
+  scanBtn.textContent = '⏳ Scanning...';
+  scanBtn.disabled = true;
+  itemsEl.innerHTML = '';
+
+  bt.list(
+    function(devices) {
+      // Paired (eşleştirilmiş) cihazlar
+      if (devices && devices.length > 0) {
+        devices.forEach(d => renderScanItem({ id: d.address, name: d.name || d.address }, itemsEl));
+      }
+      // Unpaired scan da dene
+      bt.discoverUnpaired(
+        function(unpaired) {
+          if (unpaired && unpaired.length > 0) {
+            unpaired.forEach(d => renderScanItem({ id: d.address, name: d.name || d.address }, itemsEl));
+          }
+          if (itemsEl.children.length === 0) {
+            itemsEl.innerHTML = '<div style="padding:12px;font-family:\'DM Mono\',monospace;font-size:11px;color:var(--light-text-dim)">No devices found. Pair printer in Android Settings first.</div>';
+          }
+          listEl.style.display = 'block';
+          scanBtn.textContent = '🔍 SCAN BLUETOOTH DEVICES';
+          scanBtn.disabled = false;
+        },
+        function(err) {
+          if (itemsEl.children.length === 0) {
+            itemsEl.innerHTML = '<div style="padding:12px;font-family:\'DM Mono\',monospace;font-size:11px;color:var(--light-text-dim)">No unpaired devices. Check paired list above.</div>';
+          }
+          listEl.style.display = 'block';
+          scanBtn.textContent = '🔍 SCAN BLUETOOTH DEVICES';
+          scanBtn.disabled = false;
+        }
+      );
+    },
+    function(err) {
+      itemsEl.innerHTML = '<div style="padding:12px;font-family:\'DM Mono\',monospace;font-size:11px;color:#cc4444">ERROR: ' + (err||'list failed') + '</div>';
+      listEl.style.display = 'block';
+      scanBtn.textContent = '🔍 SCAN BLUETOOTH DEVICES';
+      scanBtn.disabled = false;
+    }
+  );
+}
+
+function renderScanItem(device, container) {
+  const div = document.createElement('div');
+  div.style.cssText = 'padding:10px 12px;border-bottom:1px solid var(--light-border);display:flex;justify-content:space-between;align-items:center;cursor:pointer';
+  div.innerHTML = `
+    <div>
+      <div style="font-size:13px;color:var(--light-text);font-weight:500">${device.name}</div>
+      <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1px;color:var(--light-text-dim)">${device.id}</div>
+    </div>
+    <button class="sr-btn" style="font-size:10px;padding:4px 10px">Assign</button>
+  `;
+  div.querySelector('button').onclick = () => selectDeviceForAssign(device);
+  container.appendChild(div);
+}
+
+function selectDeviceForAssign(device) {
+  btScannedDevice = device;
+  document.getElementById('btAssignName').textContent = device.name || device.id;
+  document.getElementById('btAssignModal').style.display = 'block';
+}
+
+function cancelAssign() {
+  btScannedDevice = null;
+  document.getElementById('btAssignModal').style.display = 'none';
+}
+
+function assignPrinter(num) {
+  if (!btScannedDevice) return;
+  localStorage.setItem('printer'+num+'_mac', btScannedDevice.id);
+  localStorage.setItem('printer'+num+'_name', btScannedDevice.name || btScannedDevice.id);
+  printers[num] = { mac: btScannedDevice.id, name: btScannedDevice.name };
+  const el = document.getElementById('printer'+num+'Name');
+  if (el) el.textContent = btScannedDevice.name || btScannedDevice.id;
+  showToast('Printer '+num+' assigned: '+(btScannedDevice.name||btScannedDevice.id), 'green');
+  cancelAssign();
+}
+
+
+// ── CONNECT ──
+function connectPrinter(num) {
+  const mac = (printers[num] && printers[num].mac) || localStorage.getItem('printer'+num+'_mac') || '';
+  if (!mac) { showToast('First scan and assign Printer '+num, 'red'); return; }
+
+  const bt = getBT();
+  if (!bt) { showToast('Bluetooth plugin not available', 'red'); return; }
+
+  bt.connect(
+    mac,
+    function() {
+      printers[num] = { ...(printers[num]||{}), mac, connected: true };
+      const dot = document.getElementById('printer'+num+'Dot');
+      if (dot) dot.className = 'conn-dot ok';
+      const name = localStorage.getItem('printer'+num+'_name') || mac;
+      const el = document.getElementById('printer'+num+'Name');
+      if (el) el.textContent = 'Connected: '+name;
+      showToast('Printer '+num+' connected!', 'green');
+    },
+    function(err) {
+      const dot = document.getElementById('printer'+num+'Dot');
+      if (dot) dot.className = 'conn-dot err';
+      showToast('Connect error: '+(err||'').toString().substring(0,30), 'red');
+    }
+  );
+}
+
+// ── PRINT ──
+async function sendToPrinter(text, num) {
+  const n = num || 1;
+  const ip = (printers[n] && printers[n].ip) || localStorage.getItem('printer'+n+'_ip') || '';
+  const mac = (printers[n] && printers[n].mac) || localStorage.getItem('printer'+n+'_mac') || '';
+
+  // IP varsa önce IP dene
+  if (ip) {
+    try {
+      const escaped = text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'&#10;');
+      const soap = '<?xml version="1.0" encoding="utf-8"?>' +
+        '<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/">' +
+          '<s:Body>' +
+            '<epos-print xmlns="http://www.epson-pos.com/schemas/2011/03/epos-print">' +
+              '<text xml:space="preserve">' + escaped + '</text>' +
+              '<feed unit="3"/>' +
+              '<cut/>' +
+            '</epos-print>' +
+          '</s:Body>' +
+        '</s:Envelope>';
+      const res = await fetch('http://'+ip+'/cgi-bin/epos/service.cgi?devid=local_printer&timeout=10000', {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/xml; charset=utf-8', 'SOAPAction': '""' },
+        body: soap
+      });
+      if (res.ok) {
+        showToast('Printed ✓', 'green');
+        return true;
+      } else {
+        showToast('Printer error: '+res.status, 'red');
+        return false;
+      }
+    } catch(e) {
+      showToast('IP print failed: '+(e.message||'').substring(0,25), 'red');
+      return false;
+    }
+  }
+
+  const bt = getBT();
+  if (!bt) { showToast('Bluetooth plugin not found', 'red'); return false; }
+
+  // ESC/POS komutları: init + sol hizala + metin + 3 satır besleme + tam kesim
+  const enc = new TextEncoder();
+  const textBytes = enc.encode(text + '\n\n\n');
+  const init = new Uint8Array([0x1B, 0x40, 0x1B, 0x61, 0x00]);
+  const cut  = new Uint8Array([0x1D, 0x56, 0x42, 0x00]);
+  const cmd  = new Uint8Array(init.length + textBytes.length + cut.length);
+  cmd.set(init, 0);
+  cmd.set(textBytes, init.length);
+  cmd.set(cut, init.length + textBytes.length);
+
+  return new Promise((resolve) => {
+    const doWrite = () => {
+      bt.write(
+        cmd.buffer,
+        function() { showToast('Printed ✓', 'green'); resolve(true); },
+        function(err) { showToast('Print error: '+(err||'').toString().substring(0,25), 'red'); resolve(false); }
+      );
+    };
+
+    if (printers[n] && printers[n].connected) {
+      doWrite();
+    } else {
+      bt.connect(
+        mac,
+        function() {
+          printers[n] = { ...(printers[n]||{}), mac, connected: true };
+          doWrite();
+        },
+        function(err) {
+          showToast('Connect failed: '+(err||'').toString().substring(0,25), 'red');
+          resolve(false);
+        }
+      );
+    }
+  });
+}
+
+async function testPrint(num) {
+  const n = num || 1;
+  const store = localStorage.getItem('store_name') || 'BogongAI';
+  const now = new Date();
+  const text = '================================\n'+store+'\n================================\nTEST PRINT - Printer '+n+'\n'+now.toLocaleDateString('en-AU')+'  '+now.toLocaleTimeString('en-AU',{hour:'2-digit',minute:'2-digit'})+'\n================================';
+  const ok = await sendToPrinter(text, n);
+  if (!ok) showToast('Assign and connect printer first', 'red');
+}
+
+function saveIP(num) {
+  const el = document.getElementById('printer'+num+'IP');
+  const ip = el ? el.value.trim() : '';
+  if (!ip) { showToast('Enter IP address', 'red'); return; }
+  localStorage.setItem('printer'+num+'_ip', ip);
+  localStorage.setItem('printer'+num+'_name', 'IP: '+ip);
+  printers[num] = { ip, name: 'IP: '+ip };
+  const nameEl = document.getElementById('printer'+num+'Name');
+  if (nameEl) nameEl.textContent = 'IP: '+ip;
+  const dot = document.getElementById('printer'+num+'Dot');
+  if (dot) dot.className = 'conn-dot ok';
+  showToast('Printer '+num+' IP saved: '+ip, 'green');
+}
+
+function loadPrinterSettings() {
+  for (let i = 1; i <= 3; i++) {
+    const ip = localStorage.getItem('printer'+i+'_ip');
+    const mac = localStorage.getItem('printer'+i+'_mac');
+    const name = localStorage.getItem('printer'+i+'_name');
+    const nameEl = document.getElementById('printer'+i+'Name');
+    const ipEl = document.getElementById('printer'+i+'IP');
+    if (ip) {
+      printers[i] = { ip, name: name||'IP: '+ip };
+      if (nameEl) nameEl.textContent = name || 'IP: '+ip;
+      if (ipEl) ipEl.value = ip;
+      const dot = document.getElementById('printer'+i+'Dot');
+      if (dot) dot.className = 'conn-dot ok';
+    } else if (mac) {
+      printers[i] = { mac, name: name||mac };
+      if (nameEl) nameEl.textContent = name || mac;
+    }
+  }
+}
+
+function savePrinterSettings() {
+  showToast('Saved ✓', 'green');
+}
+
+</script>
+</body>
+</html>
