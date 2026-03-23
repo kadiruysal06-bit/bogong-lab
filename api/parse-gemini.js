@@ -49,18 +49,17 @@ module.exports = async function handler(req, res) {
     }
 
     var text = data.candidates[0].content.parts[0].text || '';
-    console.log('Gemini raw response:', text.substring(0, 200));
     
-    // JSON bloğu çıkar - çeşitli formatları dene
-    var jsonStr = text;
-    var codeMatch = text.match(/```(?:json)?\s*([\s\S]*?)```/);
-    if (codeMatch) {
-      jsonStr = codeMatch[1];
-    } else {
-      var objMatch = text.match(/\{[\s\S]*\}/);
-      if (objMatch) jsonStr = objMatch[0];
+    // Backtick kod bloğunu temizle
+    var jsonStr = text.trim();
+    // ```json ... ``` veya ``` ... ``` formatı
+    jsonStr = jsonStr.replace(/^```(?:json)?\s*/i, '').replace(/\s*```\s*$/i, '').trim();
+    // Hala JSON objesi değilse içinden çıkar
+    var start = jsonStr.indexOf('{');
+    var end = jsonStr.lastIndexOf('}');
+    if (start !== -1 && end !== -1) {
+      jsonStr = jsonStr.substring(start, end + 1);
     }
-    jsonStr = jsonStr.trim();
 
     var parsed = JSON.parse(jsonStr);
     return res.status(200).json(parsed);
