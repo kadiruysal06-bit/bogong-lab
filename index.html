@@ -2,24 +2,24 @@
 <html lang="en">
 <head>
     <meta name="description" content="Bogong AI Lab — building AI tools for human clarity. Mirrors, UniDash and more.">
-<meta name="keywords" content="Bogong AI, AI tools, workflow automation, AI reflection, business AI">
-<meta property="og:title" content="Bogong AI Lab">
-<meta property="og:description" content="AI tools for human clarity and business automation.">
-<meta property="og:url" content="https://bogongai.net">
-    
-    <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-YGRHEL8PE1"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+    <meta name="keywords" content="Bogong AI, AI tools, workflow automation, AI reflection, business AI">
+    <meta property="og:title" content="Bogong AI Lab">
+    <meta property="og:description" content="AI tools for human clarity and business automation.">
+    <meta property="og:url" content="https://bogongai.net">
 
-  gtag('config', 'G-YGRHEL8PE1');
-</script
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-YGRHEL8PE1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-YGRHEL8PE1');
+    </script>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bogong AI Solutions Lab — AI Architecture & Analytics</title>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
         :root {
             --ink: #0f0f12;
@@ -61,706 +61,207 @@
             backdrop-filter: blur(12px);
             border-bottom: 1px solid var(--border);
         }
-
-        .nav-logo {
-            display: flex; align-items: center; gap: 14px;
-            text-decoration: none;
-        }
-
+        .nav-logo { display: flex; align-items: center; gap: 14px; text-decoration: none; }
         .nav-logo img { height: 36px; width: auto; filter: brightness(0) invert(1); opacity: 0.85; }
-
-        .nav-wordmark {
-            font-family: 'DM Mono', monospace;
-            font-size: 11px; font-weight: 300;
-            letter-spacing: 4px; color: rgba(255,255,255,0.5);
-            text-transform: uppercase;
-        }
-
-        .nav-links {
-            display: flex; align-items: center; gap: 36px;
-        }
-
-        .nav-links a {
-            font-size: 11px; letter-spacing: 2px;
-            color: rgba(255,255,255,0.4); text-decoration: none;
-            text-transform: uppercase; transition: color 0.2s;
-        }
-
+        .nav-wordmark { font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 300; letter-spacing: 4px; color: rgba(255,255,255,0.5); text-transform: uppercase; }
+        .nav-links { display: flex; align-items: center; gap: 36px; }
+        .nav-links a { font-size: 11px; letter-spacing: 2px; color: rgba(255,255,255,0.4); text-decoration: none; text-transform: uppercase; transition: color 0.2s; }
         .nav-links a:hover { color: var(--gold); }
+        .btn-nav { background: transparent; color: var(--gold); border: 1px solid rgba(200,169,110,0.4); padding: 10px 28px; font-family: 'DM Sans', sans-serif; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; transition: all 0.3s; text-decoration: none; }
+        .btn-nav:hover { background: rgba(200,169,110,0.08); border-color: var(--gold); }
 
-        .btn-nav {
-            background: transparent; color: var(--gold);
-            border: 1px solid rgba(200,169,110,0.4);
-            padding: 10px 28px;
-            font-family: 'DM Sans', sans-serif;
-            font-size: 11px; letter-spacing: 2px;
-            text-transform: uppercase; cursor: pointer;
-            transition: all 0.3s; text-decoration: none;
-        }
-
-        .btn-nav:hover {
-            background: rgba(200,169,110,0.08);
-            border-color: var(--gold);
-        }
-
-        /* HERO */
+        /* ── HERO 3D ── */
         .hero {
             min-height: 100vh;
-            display: flex; flex-direction: column;
-            align-items: center; justify-content: center;
-            padding: 140px 60px 100px;
-            position: relative; overflow: hidden;
-            text-align: center;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            align-items: center;
+            padding: 100px 60px 60px;
+            position: relative;
+            overflow: hidden;
+            gap: 40px;
         }
-
         .hero-bg {
             position: absolute; inset: 0; pointer-events: none;
             background:
-                radial-gradient(ellipse 80% 50% at 50% 100%, rgba(26,58,92,0.18) 0%, transparent 60%),
-                radial-gradient(ellipse 40% 30% at 20% 20%, rgba(200,169,110,0.06) 0%, transparent 50%),
-                radial-gradient(ellipse 30% 40% at 80% 10%, rgba(74,138,181,0.08) 0%, transparent 50%);
+                radial-gradient(ellipse 60% 60% at 70% 50%, rgba(26,58,92,0.15) 0%, transparent 60%),
+                radial-gradient(ellipse 40% 30% at 20% 20%, rgba(200,169,110,0.06) 0%, transparent 50%);
         }
-
         .hero-grid-lines {
             position: absolute; inset: 0; pointer-events: none;
-            background-image:
-                linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+            background-image: linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
             background-size: 80px 80px;
-            mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 0%, transparent 70%);
+            mask-image: radial-gradient(ellipse 100% 100% at 50% 50%, black 0%, transparent 80%);
         }
+        .hero-left { position: relative; z-index: 2; }
+        .hero-tag { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 6px; color: var(--gold); opacity: 0; text-transform: uppercase; margin-bottom: 32px; animation: rise 0.8s ease forwards 0.2s; }
+        .hero-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(38px, 5vw, 68px); font-weight: 300; line-height: 1.1; color: var(--white); max-width: 600px; opacity: 0; animation: rise 1s ease forwards 0.4s; }
+        .hero-title em { font-style: italic; color: var(--gold); }
+        .hero-sub { font-size: 16px; font-weight: 300; color: rgba(255,255,255,0.4); max-width: 460px; margin-top: 24px; line-height: 1.8; opacity: 0; animation: rise 1s ease forwards 0.6s; }
+        .hero-cta { display: flex; gap: 16px; margin-top: 44px; opacity: 0; animation: rise 1s ease forwards 0.8s; }
 
-        .hero-tag {
-            font-family: 'DM Mono', monospace;
-            font-size: 10px; letter-spacing: 6px;
-            color: var(--gold); opacity: 0.7;
-            text-transform: uppercase; margin-bottom: 32px;
-            opacity: 0; animation: rise 0.8s ease forwards 0.2s;
-        }
+        /* 3D canvas */
+        .hero-right { position: relative; z-index: 2; display: flex; align-items: center; justify-content: center; height: 580px; opacity: 0; animation: rise 1.2s ease forwards 0.6s; }
+        #heroCanvas { width: 100%; height: 100%; cursor: grab; }
+        #heroCanvas:active { cursor: grabbing; }
 
-        .hero-title {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: clamp(42px, 6.5vw, 82px);
-            font-weight: 300; line-height: 1.1;
-            color: var(--white); max-width: 900px;
-            opacity: 0; animation: rise 1s ease forwards 0.4s;
-        }
+        /* Tooltip */
+        .sphere-tooltip { position: absolute; background: rgba(8,8,14,0.97); border: 1px solid rgba(200,169,110,0.35); padding: 14px 18px; pointer-events: none; opacity: 0; transition: opacity 0.2s; z-index: 10; max-width: 210px; }
+        .sphere-tooltip.visible { opacity: 1; }
+        .tooltip-tag { font-family: 'DM Mono', monospace; font-size: 8px; letter-spacing: 3px; color: var(--gold); text-transform: uppercase; margin-bottom: 6px; }
+        .tooltip-name { font-family: 'Cormorant Garamond', serif; font-size: 22px; color: #fff; font-weight: 300; margin-bottom: 6px; }
+        .tooltip-desc { font-size: 11px; color: rgba(255,255,255,0.45); line-height: 1.6; }
+        .tooltip-action { margin-top: 10px; font-size: 9px; letter-spacing: 2px; color: var(--gold); text-transform: uppercase; font-family: 'DM Mono', monospace; }
 
-        .hero-title em {
-            font-style: italic; color: var(--gold);
-        }
-
-        .hero-sub {
-            font-size: 17px; font-weight: 300;
-            color: rgba(255,255,255,0.45);
-            max-width: 540px; margin-top: 28px; line-height: 1.8;
-            opacity: 0; animation: rise 1s ease forwards 0.6s;
-        }
-
-        .hero-cta {
-            display: flex; gap: 16px; margin-top: 52px;
-            opacity: 0; animation: rise 1s ease forwards 0.8s;
-        }
-
-        .btn-primary {
-            background: transparent; color: var(--white);
-            border: 1px solid rgba(255,255,255,0.25);
-            padding: 16px 42px;
-            font-family: 'DM Sans', sans-serif;
-            font-size: 11px; letter-spacing: 3px;
-            text-transform: uppercase; cursor: pointer;
-            transition: all 0.3s; text-decoration: none;
-            display: inline-block;
-        }
-
-        .btn-primary:hover {
-            background: rgba(255,255,255,0.06);
-            border-color: rgba(255,255,255,0.5);
-        }
-
-        .btn-gold {
-            background: transparent; color: var(--gold);
-            border: 1px solid rgba(200,169,110,0.5);
-            padding: 16px 42px;
-            font-family: 'DM Sans', sans-serif;
-            font-size: 11px; letter-spacing: 3px;
-            text-transform: uppercase; cursor: pointer;
-            transition: all 0.3s; text-decoration: none;
-            display: inline-block;
-        }
-
-        .btn-gold:hover {
-            background: rgba(200,169,110,0.1);
-            border-color: var(--gold);
-        }
-
-        .hero-scroll {
-            position: absolute; bottom: 48px; left: 50%;
-            transform: translateX(-50%);
-            display: flex; flex-direction: column; align-items: center; gap: 8px;
-            opacity: 0.3;
-            animation: rise 1s ease forwards 1.2s;
-        }
-
-        .hero-scroll span {
-            font-size: 9px; letter-spacing: 4px;
-            text-transform: uppercase; color: rgba(255,255,255,0.4);
-        }
-
-        .scroll-line {
-            width: 1px; height: 40px;
-            background: linear-gradient(to bottom, rgba(255,255,255,0.3), transparent);
-        }
+        /* Buttons */
+        .btn-primary { background: transparent; color: var(--white); border: 1px solid rgba(255,255,255,0.25); padding: 16px 42px; font-family: 'DM Sans', sans-serif; font-size: 11px; letter-spacing: 3px; text-transform: uppercase; cursor: pointer; transition: all 0.3s; text-decoration: none; display: inline-block; }
+        .btn-primary:hover { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.5); }
+        .btn-gold { background: transparent; color: var(--gold); border: 1px solid rgba(200,169,110,0.5); padding: 16px 42px; font-family: 'DM Sans', sans-serif; font-size: 11px; letter-spacing: 3px; text-transform: uppercase; cursor: pointer; transition: all 0.3s; text-decoration: none; display: inline-block; }
+        .btn-gold:hover { background: rgba(200,169,110,0.1); border-color: var(--gold); }
 
         /* SECTIONS */
         section { padding: 110px 60px; }
-
-        .section-tag {
-            font-family: 'DM Mono', monospace;
-            font-size: 10px; letter-spacing: 6px;
-            text-transform: uppercase; color: var(--gold);
-            opacity: 0.7; margin-bottom: 20px;
-        }
+        .section-tag { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 6px; text-transform: uppercase; color: var(--gold); opacity: 0.7; margin-bottom: 20px; }
 
         /* WHAT WE DO */
-        .what {
-            background: var(--ink-soft);
-            border-top: 1px solid var(--border);
-        }
-
+        .what { background: var(--ink-soft); border-top: 1px solid var(--border); }
         .what-inner { max-width: 1100px; margin: 0 auto; }
-
         .what-header { margin-bottom: 64px; }
-
-        .what-header h2 {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: clamp(36px, 4vw, 56px);
-            font-weight: 300; color: var(--white);
-            line-height: 1.15; max-width: 700px;
-        }
-
+        .what-header h2 { font-family: 'Cormorant Garamond', serif; font-size: clamp(36px, 4vw, 56px); font-weight: 300; color: var(--white); line-height: 1.15; max-width: 700px; }
         .what-header h2 em { font-style: italic; color: var(--gold); }
-
-        .what-cards {
-            display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 2px;
-        }
-
-        .what-card {
-            background: var(--ink-mid);
-            padding: 40px 36px;
-            border-top: 2px solid transparent;
-            transition: border-color 0.3s;
-        }
-
+        .what-cards { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 2px; }
+        .what-card { background: var(--ink-mid); padding: 40px 36px; border-top: 2px solid transparent; transition: border-color 0.3s; }
         .what-card:hover { border-top-color: var(--gold); }
-
-        .card-num {
-            font-family: 'DM Mono', monospace;
-            font-size: 11px; letter-spacing: 3px;
-            color: var(--gold); opacity: 0.5;
-            margin-bottom: 20px;
-        }
-
-        .what-card h4 {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 24px; font-weight: 400;
-            color: var(--white); margin-bottom: 14px;
-        }
-
-        .what-card p {
-            font-size: 14px; color: rgba(255,255,255,0.45);
-            line-height: 1.8;
-        }
+        .card-num { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 3px; color: var(--gold); opacity: 0.5; margin-bottom: 20px; }
+        .what-card h4 { font-family: 'Cormorant Garamond', serif; font-size: 24px; font-weight: 400; color: var(--white); margin-bottom: 14px; }
+        .what-card p { font-size: 14px; color: rgba(255,255,255,0.45); line-height: 1.8; }
 
         /* LAB STATEMENT */
-        .lab-statement {
-            background: var(--ink);
-            border-top: 1px solid var(--border);
-            border-bottom: 1px solid var(--border);
-            padding: 80px 60px;
-            text-align: center;
-        }
-
-        .lab-statement p {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: clamp(28px, 3.5vw, 46px);
-            font-weight: 300; font-style: italic;
-            color: rgba(255,255,255,0.7);
-            max-width: 800px; margin: 0 auto;
-            line-height: 1.4;
-        }
-
-        .lab-statement p em {
-            font-style: normal; color: var(--gold);
-        }
+        .lab-statement { background: var(--ink); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 80px 60px; text-align: center; }
+        .lab-statement p { font-family: 'Cormorant Garamond', serif; font-size: clamp(28px, 3.5vw, 46px); font-weight: 300; font-style: italic; color: rgba(255,255,255,0.7); max-width: 800px; margin: 0 auto; line-height: 1.4; }
+        .lab-statement p em { font-style: normal; color: var(--gold); }
 
         /* WHAT WE BUILD */
-        .build {
-            background: var(--ink-soft);
-            border-top: 1px solid var(--border);
-        }
-
+        .build { background: var(--ink-soft); border-top: 1px solid var(--border); }
         .build-inner { max-width: 1100px; margin: 0 auto; }
-
         .build-header { margin-bottom: 60px; }
-
-        .build-header h2 {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: clamp(36px, 4vw, 56px);
-            font-weight: 300; color: var(--white); line-height: 1.15;
-        }
-
-        .build-grid {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 2px;
-        }
-
-        .build-col {
-            background: var(--ink-mid); padding: 40px 36px;
-        }
-
-        .build-col-label {
-            font-family: 'DM Mono', monospace;
-            font-size: 10px; letter-spacing: 5px;
-            text-transform: uppercase; color: var(--blue-light);
-            margin-bottom: 28px; padding-bottom: 16px;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .build-items {
-            display: flex; flex-direction: column; gap: 18px;
-        }
-
-        .build-item {
-            display: flex; gap: 16px; align-items: flex-start;
-        }
-
-        .build-item-dot {
-            width: 4px; height: 4px; border-radius: 50%;
-            background: var(--gold); margin-top: 8px; flex-shrink: 0;
-            opacity: 0.6;
-        }
-
-        .build-item-text h5 {
-            font-size: 15px; font-weight: 400;
-            color: rgba(255,255,255,0.8); margin-bottom: 4px;
-        }
-
-        .build-item-text p {
-            font-size: 13px; color: rgba(255,255,255,0.35);
-            line-height: 1.6;
-        }
+        .build-header h2 { font-family: 'Cormorant Garamond', serif; font-size: clamp(36px, 4vw, 56px); font-weight: 300; color: var(--white); line-height: 1.15; }
+        .build-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; }
+        .build-col { background: var(--ink-mid); padding: 40px 36px; }
+        .build-col-label { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 5px; text-transform: uppercase; color: var(--blue-light); margin-bottom: 28px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+        .build-items { display: flex; flex-direction: column; gap: 18px; }
+        .build-item { display: flex; gap: 16px; align-items: flex-start; }
+        .build-item-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--gold); margin-top: 8px; flex-shrink: 0; opacity: 0.6; }
+        .build-item-text h5 { font-size: 15px; font-weight: 400; color: rgba(255,255,255,0.8); margin-bottom: 4px; }
+        .build-item-text p { font-size: 13px; color: rgba(255,255,255,0.35); line-height: 1.6; }
 
         /* CASE STUDY */
-        .case-study {
-            background: var(--ink);
-            border-top: 1px solid var(--border);
-        }
-
-        .case-inner {
-            max-width: 1100px; margin: 0 auto;
-            display: grid; grid-template-columns: 1fr 1fr; gap: 80px;
-            align-items: center;
-        }
-
-        .case-left h2 {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: clamp(32px, 3.5vw, 48px);
-            font-weight: 300; color: var(--white);
-            line-height: 1.2; margin-bottom: 24px;
-        }
-
+        .case-study { background: var(--ink); border-top: 1px solid var(--border); }
+        .case-inner { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; }
+        .case-left h2 { font-family: 'Cormorant Garamond', serif; font-size: clamp(32px, 3.5vw, 48px); font-weight: 300; color: var(--white); line-height: 1.2; margin-bottom: 24px; }
         .case-left h2 em { font-style: italic; color: var(--gold); }
-
-        .case-left p {
-            font-size: 15px; color: rgba(255,255,255,0.45);
-            line-height: 1.8; margin-bottom: 16px;
-        }
-
-        .case-stats {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 2px;
-            margin-top: 36px;
-        }
-
-        .case-stat {
-            background: var(--ink-mid); padding: 24px 28px;
-        }
-
-        .case-stat-num {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 36px; font-weight: 300;
-            color: var(--gold); line-height: 1;
-            margin-bottom: 6px;
-        }
-
-        .case-stat-label {
-            font-size: 11px; letter-spacing: 2px;
-            color: rgba(255,255,255,0.3);
-            text-transform: uppercase;
-        }
-
-        .case-right {
-            background: var(--ink-mid);
-            border: 1px solid var(--border);
-            padding: 40px;
-        }
-
-        .case-preview-tag {
-            font-family: 'DM Mono', monospace;
-            font-size: 10px; letter-spacing: 4px;
-            text-transform: uppercase;
-            color: var(--gold); opacity: 0.6;
-            margin-bottom: 20px;
-        }
-
-        .case-preview-title {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 28px; font-weight: 300;
-            color: var(--white); margin-bottom: 16px;
-        }
-
-        .case-preview-text {
-            font-size: 14px; color: rgba(255,255,255,0.4);
-            line-height: 1.8; margin-bottom: 28px;
-        }
-
-        .case-preview-link {
-            display: inline-flex; align-items: center; gap: 10px;
-            font-size: 11px; letter-spacing: 3px;
-            text-transform: uppercase; color: var(--gold);
-            text-decoration: none; transition: gap 0.3s;
-        }
-
+        .case-left p { font-size: 15px; color: rgba(255,255,255,0.45); line-height: 1.8; margin-bottom: 16px; }
+        .case-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; margin-top: 36px; }
+        .case-stat { background: var(--ink-mid); padding: 24px 28px; }
+        .case-stat-num { font-family: 'Cormorant Garamond', serif; font-size: 36px; font-weight: 300; color: var(--gold); line-height: 1; margin-bottom: 6px; }
+        .case-stat-label { font-size: 11px; letter-spacing: 2px; color: rgba(255,255,255,0.3); text-transform: uppercase; }
+        .case-right { background: var(--ink-mid); border: 1px solid var(--border); padding: 40px; }
+        .case-preview-tag { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 4px; text-transform: uppercase; color: var(--gold); opacity: 0.6; margin-bottom: 20px; }
+        .case-preview-title { font-family: 'Cormorant Garamond', serif; font-size: 28px; font-weight: 300; color: var(--white); margin-bottom: 16px; }
+        .case-preview-text { font-size: 14px; color: rgba(255,255,255,0.4); line-height: 1.8; margin-bottom: 28px; }
+        .case-preview-link { display: inline-flex; align-items: center; gap: 10px; font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); text-decoration: none; transition: gap 0.3s; }
         .case-preview-link:hover { gap: 16px; }
-
-        .case-preview-link::after {
-            content: '→';
-        }
+        .case-preview-link::after { content: '→'; }
 
         /* CHATBOT */
-        .chat-section {
-            background: var(--ink-soft);
-            border-top: 1px solid var(--border);
-        }
-
+        .chat-section { background: var(--ink-soft); border-top: 1px solid var(--border); }
         .chat-inner { max-width: 800px; margin: 0 auto; }
-
         .chat-header { text-align: center; margin-bottom: 48px; }
-
-        .chat-header h2 {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: clamp(32px, 3.5vw, 48px);
-            font-weight: 300; color: var(--white);
-            margin-bottom: 14px;
-        }
-
-        .chat-header p {
-            font-size: 15px; color: rgba(255,255,255,0.4);
-            max-width: 480px; margin: 0 auto; line-height: 1.7;
-        }
-
-        .chat-box {
-            background: var(--ink-mid);
-            border: 1px solid var(--border);
-        }
-
-        .chat-messages {
-            padding: 28px 32px;
-            min-height: 280px; max-height: 400px;
-            overflow-y: auto;
-            display: flex; flex-direction: column; gap: 20px;
-        }
-
+        .chat-header h2 { font-family: 'Cormorant Garamond', serif; font-size: clamp(32px, 3.5vw, 48px); font-weight: 300; color: var(--white); margin-bottom: 14px; }
+        .chat-header p { font-size: 15px; color: rgba(255,255,255,0.4); max-width: 480px; margin: 0 auto; line-height: 1.7; }
+        .chat-box { background: var(--ink-mid); border: 1px solid var(--border); }
+        .chat-messages { padding: 28px 32px; min-height: 280px; max-height: 400px; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; }
         .chat-messages::-webkit-scrollbar { width: 4px; }
         .chat-messages::-webkit-scrollbar-track { background: transparent; }
         .chat-messages::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); }
-
-        .msg {
-            display: flex; gap: 14px; align-items: flex-start;
-        }
-
+        .msg { display: flex; gap: 14px; align-items: flex-start; }
         .msg.user { flex-direction: row-reverse; }
-
-        .msg-avatar {
-            width: 28px; height: 28px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 10px; letter-spacing: 1px; flex-shrink: 0;
-            margin-top: 2px;
-        }
-
-        .msg-avatar.bot {
-            background: rgba(200,169,110,0.15);
-            border: 1px solid rgba(200,169,110,0.3);
-            color: var(--gold);
-            padding: 3px;
-        }
-
-        .msg-avatar.user-av {
-            background: rgba(74,138,181,0.15);
-            border: 1px solid rgba(74,138,181,0.3);
-            color: var(--blue-light);
-        }
-
-        .msg-bubble {
-            max-width: 75%;
-            padding: 14px 18px;
-            font-size: 14px; line-height: 1.7;
-        }
-
-        .msg.bot .msg-bubble {
-            background: rgba(255,255,255,0.04);
-            border: 1px solid var(--border);
-            color: rgba(255,255,255,0.75);
-        }
-
-        .msg.user .msg-bubble {
-            background: rgba(26,58,92,0.3);
-            border: 1px solid rgba(74,138,181,0.2);
-            color: rgba(255,255,255,0.8);
-            text-align: right;
-        }
-
-        .chat-input-area {
-            border-top: 1px solid var(--border);
-            padding: 16px 20px;
-            display: flex; gap: 12px; align-items: flex-end;
-        }
-
-        .chat-input {
-            flex: 1; background: transparent; border: none;
-            font-family: 'DM Sans', sans-serif;
-            font-size: 14px; font-weight: 300;
-            color: rgba(255,255,255,0.8); outline: none;
-            resize: none; line-height: 1.5;
-            padding: 8px 0; max-height: 120px;
-        }
-
+        .msg-avatar { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; letter-spacing: 1px; flex-shrink: 0; margin-top: 2px; }
+        .msg-avatar.bot { background: rgba(200,169,110,0.15); border: 1px solid rgba(200,169,110,0.3); color: var(--gold); padding: 3px; }
+        .msg-avatar.user-av { background: rgba(74,138,181,0.15); border: 1px solid rgba(74,138,181,0.3); color: var(--blue-light); }
+        .msg-bubble { max-width: 75%; padding: 14px 18px; font-size: 14px; line-height: 1.7; }
+        .msg.bot .msg-bubble { background: rgba(255,255,255,0.04); border: 1px solid var(--border); color: rgba(255,255,255,0.75); }
+        .msg.user .msg-bubble { background: rgba(26,58,92,0.3); border: 1px solid rgba(74,138,181,0.2); color: rgba(255,255,255,0.8); text-align: right; }
+        .chat-input-area { border-top: 1px solid var(--border); padding: 16px 20px; display: flex; gap: 12px; align-items: flex-end; }
+        .chat-input { flex: 1; background: transparent; border: none; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 300; color: rgba(255,255,255,0.8); outline: none; resize: none; line-height: 1.5; padding: 8px 0; max-height: 120px; }
         .chat-input::placeholder { color: rgba(255,255,255,0.2); }
-
-        .btn-send {
-            background: transparent;
-            border: 1px solid rgba(200,169,110,0.35);
-            color: var(--gold); padding: 10px 18px;
-            font-family: 'DM Sans', sans-serif;
-            font-size: 11px; letter-spacing: 2px;
-            text-transform: uppercase; cursor: pointer;
-            transition: all 0.3s; flex-shrink: 0;
-            display: flex; align-items: center; justify-content: center;
-        }
-
-        .btn-send:hover {
-            background: rgba(200,169,110,0.08);
-            border-color: var(--gold);
-        }
-
-        .butterfly-svg {
-            width: 28px; height: 28px;
-            display: block;
-        }
-
-        .wing-left, .wing-right {
-            transform-origin: center;
-            animation: flapIdle 2.4s ease-in-out infinite;
-        }
-
-        .wing-right {
-            animation-direction: alternate-reverse;
-        }
-
-        @keyframes flapIdle {
-            0%, 100% { transform: scaleX(1); }
-            50% { transform: scaleX(0.15); }
-        }
-
-        .btn-send.thinking .wing-left,
-        .btn-send.thinking .wing-right {
-            animation-name: flapFast;
-            animation-duration: 0.35s;
-        }
-
-        @keyframes flapFast {
-            0%, 100% { transform: scaleX(1); }
-            50% { transform: scaleX(0.1); }
-        }
-
-        .chat-disclaimer {
-            text-align: center; margin-top: 16px;
-            font-size: 11px; color: rgba(255,255,255,0.2);
-            letter-spacing: 1px;
-        }
+        .btn-send { background: transparent; border: 1px solid rgba(200,169,110,0.35); color: var(--gold); padding: 10px 18px; font-family: 'DM Sans', sans-serif; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; transition: all 0.3s; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+        .btn-send:hover { background: rgba(200,169,110,0.08); border-color: var(--gold); }
+        .butterfly-svg { width: 28px; height: 28px; display: block; }
+        .wing-left, .wing-right { transform-origin: center; animation: flapIdle 2.4s ease-in-out infinite; }
+        .wing-right { animation-direction: alternate-reverse; }
+        @keyframes flapIdle { 0%, 100% { transform: scaleX(1); } 50% { transform: scaleX(0.15); } }
+        .btn-send.thinking .wing-left, .btn-send.thinking .wing-right { animation-name: flapFast; animation-duration: 0.35s; }
+        @keyframes flapFast { 0%, 100% { transform: scaleX(1); } 50% { transform: scaleX(0.1); } }
+        .chat-disclaimer { text-align: center; margin-top: 16px; font-size: 11px; color: rgba(255,255,255,0.2); letter-spacing: 1px; }
 
         /* CONTACT */
-        .contact {
-            background: var(--ink);
-            border-top: 1px solid var(--border);
-        }
-
-        .contact-inner {
-            max-width: 1100px; margin: 0 auto;
-            display: grid; grid-template-columns: 1fr 1fr; gap: 80px;
-            align-items: start;
-        }
-
-        .contact-left h2 {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: clamp(32px, 3.5vw, 48px);
-            font-weight: 300; color: var(--white);
-            margin-bottom: 20px; line-height: 1.2;
-        }
-
-        .contact-left p {
-            font-size: 15px; color: rgba(255,255,255,0.4);
-            line-height: 1.8; margin-bottom: 32px;
-        }
-
-        .contact-email {
-            font-family: 'DM Mono', monospace;
-            font-size: 14px; letter-spacing: 2px;
-            color: var(--gold); text-decoration: none;
-            transition: opacity 0.2s;
-        }
-
+        .contact { background: var(--ink); border-top: 1px solid var(--border); }
+        .contact-inner { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: start; }
+        .contact-left h2 { font-family: 'Cormorant Garamond', serif; font-size: clamp(32px, 3.5vw, 48px); font-weight: 300; color: var(--white); margin-bottom: 20px; line-height: 1.2; }
+        .contact-left p { font-size: 15px; color: rgba(255,255,255,0.4); line-height: 1.8; margin-bottom: 32px; }
+        .contact-email { font-family: 'DM Mono', monospace; font-size: 14px; letter-spacing: 2px; color: var(--gold); text-decoration: none; transition: opacity 0.2s; }
         .contact-email:hover { opacity: 0.7; }
-
-        .contact-right {
-            background: var(--ink-mid);
-            border: 1px solid var(--border);
-            padding: 40px;
-        }
-
+        .contact-right { background: var(--ink-mid); border: 1px solid var(--border); padding: 40px; }
         .form-group { margin-bottom: 20px; }
-
-        .form-label {
-            font-size: 10px; letter-spacing: 3px;
-            text-transform: uppercase; color: rgba(255,255,255,0.3);
-            display: block; margin-bottom: 8px;
-        }
-
-        .form-input, .form-textarea {
-            width: 100%; background: transparent;
-            border: 1px solid var(--border);
-            color: rgba(255,255,255,0.8);
-            font-family: 'DM Sans', sans-serif;
-            font-size: 14px; font-weight: 300;
-            padding: 12px 16px; outline: none;
-            transition: border-color 0.3s;
-        }
-
-        .form-input:focus, .form-textarea:focus {
-            border-color: rgba(200,169,110,0.4);
-        }
-
+        .form-label { font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: rgba(255,255,255,0.3); display: block; margin-bottom: 8px; }
+        .form-input, .form-textarea { width: 100%; background: transparent; border: 1px solid var(--border); color: rgba(255,255,255,0.8); font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 300; padding: 12px 16px; outline: none; transition: border-color 0.3s; }
+        .form-input:focus, .form-textarea:focus { border-color: rgba(200,169,110,0.4); }
         .form-textarea { resize: vertical; min-height: 100px; }
-
-        .form-input::placeholder, .form-textarea::placeholder {
-            color: rgba(255,255,255,0.15);
-        }
-
-        .btn-submit {
-            width: 100%; background: transparent;
-            border: 1px solid rgba(200,169,110,0.4);
-            color: var(--gold); padding: 14px;
-            font-family: 'DM Sans', sans-serif;
-            font-size: 11px; letter-spacing: 3px;
-            text-transform: uppercase; cursor: pointer;
-            transition: all 0.3s; margin-top: 8px;
-        }
-
-        .btn-submit:hover {
-            background: rgba(200,169,110,0.08);
-            border-color: var(--gold);
-        }
+        .form-input::placeholder, .form-textarea::placeholder { color: rgba(255,255,255,0.15); }
+        .btn-submit { width: 100%; background: transparent; border: 1px solid rgba(200,169,110,0.4); color: var(--gold); padding: 14px; font-family: 'DM Sans', sans-serif; font-size: 11px; letter-spacing: 3px; text-transform: uppercase; cursor: pointer; transition: all 0.3s; margin-top: 8px; }
+        .btn-submit:hover { background: rgba(200,169,110,0.08); border-color: var(--gold); }
 
         /* FOOTER */
-        footer {
-            background: var(--ink);
-            border-top: 1px solid var(--border);
-            padding: 48px 60px 36px;
-        }
-
-        .footer-top {
-            display: flex; justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid var(--border);
-            padding-bottom: 32px; margin-bottom: 28px;
-        }
-
-        .footer-brand {
-            font-family: 'DM Mono', monospace;
-            font-size: 12px; letter-spacing: 4px;
-            color: rgba(255,255,255,0.3); text-transform: uppercase;
-        }
-
-        .footer-links {
-            display: flex; gap: 28px;
-        }
-
-        .footer-links a {
-            font-size: 11px; letter-spacing: 2px;
-            text-transform: uppercase;
-            color: rgba(255,255,255,0.25);
-            text-decoration: none; transition: color 0.2s;
-        }
-
+        footer { background: var(--ink); border-top: 1px solid var(--border); padding: 48px 60px 36px; }
+        .footer-top { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 32px; margin-bottom: 28px; }
+        .footer-brand { font-family: 'DM Mono', monospace; font-size: 12px; letter-spacing: 4px; color: rgba(255,255,255,0.3); text-transform: uppercase; }
+        .footer-links { display: flex; gap: 28px; }
+        .footer-links a { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.25); text-decoration: none; transition: color 0.2s; }
         .footer-links a:hover { color: var(--gold); }
+        .footer-bottom { display: flex; justify-content: space-between; font-size: 11px; letter-spacing: 1px; color: rgba(255,255,255,0.18); }
 
-        .footer-bottom {
-            display: flex; justify-content: space-between;
-            font-size: 11px; letter-spacing: 1px;
-            color: rgba(255,255,255,0.18);
-        }
-
-        /* LOADER */
-        .typing {
-            display: inline-flex; gap: 4px; align-items: center;
-            padding: 4px 0;
-        }
-
-        .typing span {
-            width: 4px; height: 4px; border-radius: 50%;
-            background: var(--gold); opacity: 0.5;
-            animation: typebounce 1.2s ease-in-out infinite;
-        }
-
+        /* TYPING */
+        .typing { display: inline-flex; gap: 4px; align-items: center; padding: 4px 0; }
+        .typing span { width: 4px; height: 4px; border-radius: 50%; background: var(--gold); opacity: 0.5; animation: typebounce 1.2s ease-in-out infinite; }
         .typing span:nth-child(2) { animation-delay: 0.2s; }
         .typing span:nth-child(3) { animation-delay: 0.4s; }
-
-        @keyframes typebounce {
-            0%,100% { transform: translateY(0); opacity: 0.3; }
-            50% { transform: translateY(-4px); opacity: 0.8; }
-        }
+        @keyframes typebounce { 0%,100% { transform: translateY(0); opacity: 0.3; } 50% { transform: translateY(-4px); opacity: 0.8; } }
 
         /* ANIMATIONS */
-        @keyframes rise {
-            from { opacity: 0; transform: translateY(16px); }
-            to   { opacity: 1; transform: translateY(0); }
-        }
-
-        .reveal {
-            opacity: 0; transform: translateY(24px);
-            transition: opacity 0.7s ease, transform 0.7s ease;
-        }
-
+        @keyframes rise { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+        .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.7s ease, transform 0.7s ease; }
         .reveal.visible { opacity: 1; transform: translateY(0); }
 
         /* MOBILE */
+        @media (max-width: 900px) {
+            .hero { grid-template-columns: 1fr; padding: 100px 20px 60px; text-align: center; }
+            .hero-right { height: 380px; order: -1; }
+            .hero-cta { justify-content: center; flex-wrap: wrap; }
+            .hero-sub { margin: 24px auto 0; }
+        }
         @media (max-width: 768px) {
             nav { padding: 16px 20px; }
             .nav-links { display: none; }
             section { padding: 64px 20px; }
-            .hero { padding: 100px 20px 80px; }
-            .hero-title { font-size: 38px; }
-            .hero-cta { flex-direction: column; align-items: stretch; width: 100%; max-width: 300px; }
-            .btn-primary, .btn-gold { text-align: center; }
             .what-cards { grid-template-columns: 1fr; }
             .build-grid { grid-template-columns: 1fr; }
             .case-inner { grid-template-columns: 1fr; gap: 40px; }
-            .case-stats { grid-template-columns: 1fr 1fr; }
             .contact-inner { grid-template-columns: 1fr; gap: 40px; }
             footer { padding: 40px 20px 28px; }
             .footer-top { flex-direction: column; gap: 20px; align-items: flex-start; }
             .footer-bottom { flex-direction: column; gap: 8px; }
             .lab-statement { padding: 60px 20px; }
-            .hero-scroll { display: none; }
         }
     </style>
 </head>
@@ -781,23 +282,35 @@
     </div>
 </nav>
 
-<!-- HERO -->
-<section class="hero">
+<!-- ── HERO 3D ── -->
+<section class="hero" id="home">
     <div class="hero-bg"></div>
     <div class="hero-grid-lines"></div>
-    <div class="hero-tag">Bogong AI Solutions Lab &mdash; Melbourne</div>
-    <h1 class="hero-title">
-        Mapping the way<br>
-        your business <em>thinks.</em><br>
-        Engineering the AI<br>
-        that <em>powers it.</em>
-    </h1>
-    <p class="hero-sub">We study how your operation actually runs — then build AI systems that fit it precisely. Not templates. Not shortcuts. Architecture.</p>
-    <div class="hero-cta">
-        <a href="#chat" class="btn-gold">Analyze my workflow</a>
-        <a href="#what" class="btn-primary">How we work</a>
+
+    <div class="hero-left">
+        <div class="hero-tag">Bogong AI Solutions Lab &mdash; Melbourne</div>
+        <h1 class="hero-title">
+            Mapping the way<br>
+            your business <em>thinks.</em><br>
+            Engineering the AI<br>
+            that <em>powers it.</em>
+        </h1>
+        <p class="hero-sub">We study how your operation actually runs — then build AI systems that fit it precisely. Not templates. Not shortcuts. Architecture.</p>
+        <div class="hero-cta">
+            <a href="#chat" class="btn-gold">Analyze my workflow</a>
+            <a href="#what" class="btn-primary">How we work</a>
+        </div>
     </div>
-    
+
+    <div class="hero-right">
+        <canvas id="heroCanvas"></canvas>
+        <div class="sphere-tooltip" id="sphereTooltip">
+            <div class="tooltip-tag" id="ttTag">Product</div>
+            <div class="tooltip-name" id="ttName">—</div>
+            <div class="tooltip-desc" id="ttDesc">—</div>
+            <div class="tooltip-action" id="ttAction">Click to explore →</div>
+        </div>
+    </div>
 </section>
 
 <!-- WHAT WE DO -->
@@ -843,60 +356,24 @@
             <div class="build-col">
                 <div class="build-col-label">Front-end AI</div>
                 <div class="build-items">
-                    <div class="build-item">
-                        <div class="build-item-dot"></div>
-                        <div class="build-item-text">
-                            <h5>AI Chatbots & Assistants</h5>
-                            <p>Customer-facing AI that knows your business — products, policies, tone. Trained on your context, not generic knowledge.</p>
-                        </div>
-                    </div>
-                    <div class="build-item">
-                        <div class="build-item-dot"></div>
-                        <div class="build-item-text">
-                            <h5>Customer Systems</h5>
-                            <p>Automated responses, inquiry routing, personalized communication at scale — without losing the human tone.</p>
-                        </div>
-                    </div>
-                    <div class="build-item">
-                        <div class="build-item-dot"></div>
-                        <div class="build-item-text">
-                            <h5>Web Integration</h5>
-                            <p>AI embedded directly into your existing website or platform. No rebuilds. No disruption.</p>
-                        </div>
-                    </div>
+                    <div class="build-item"><div class="build-item-dot"></div><div class="build-item-text"><h5>AI Chatbots & Assistants</h5><p>Customer-facing AI that knows your business — products, policies, tone.</p></div></div>
+                    <div class="build-item"><div class="build-item-dot"></div><div class="build-item-text"><h5>Customer Systems</h5><p>Automated responses, inquiry routing, personalized communication at scale.</p></div></div>
+                    <div class="build-item"><div class="build-item-dot"></div><div class="build-item-text"><h5>Web Integration</h5><p>AI embedded directly into your existing website or platform.</p></div></div>
                 </div>
             </div>
             <div class="build-col">
                 <div class="build-col-label">Back-end Intelligence</div>
                 <div class="build-items">
-                    <div class="build-item">
-                        <div class="build-item-dot"></div>
-                        <div class="build-item-text">
-                            <h5>Operations Automation</h5>
-                            <p>Stock management, scheduling, reporting — repetitive processes removed from human time and handed to systems that don't miss.</p>
-                        </div>
-                    </div>
-                    <div class="build-item">
-                        <div class="build-item-dot"></div>
-                        <div class="build-item-text">
-                            <h5>Analytics Dashboards</h5>
-                            <p>Your data, made visible and actionable. Performance, inventory, sales patterns — surfaced clearly without spreadsheet archaeology.</p>
-                        </div>
-                    </div>
-                    <div class="build-item">
-                        <div class="build-item-dot"></div>
-                        <div class="build-item-text">
-                            <h5>Prompt Engineering</h5>
-                            <p>Custom AI behaviour designed for your specific use case. The difference between a generic model and one that actually works for your context.</p>
-                        </div>
-                    </div>
+                    <div class="build-item"><div class="build-item-dot"></div><div class="build-item-text"><h5>Operations Automation</h5><p>Stock management, scheduling, reporting — repetitive processes handed to systems that don't miss.</p></div></div>
+                    <div class="build-item"><div class="build-item-dot"></div><div class="build-item-text"><h5>Analytics Dashboards</h5><p>Your data, made visible and actionable. Performance, inventory, sales patterns.</p></div></div>
+                    <div class="build-item"><div class="build-item-dot"></div><div class="build-item-text"><h5>Prompt Engineering</h5><p>Custom AI behaviour designed for your specific use case.</p></div></div>
                 </div>
             </div>
         </div>
     </div>
 </section>
 
-<!-- CASE STUDY: MIRRORS -->
+<!-- CASE STUDY -->
 <section class="case-study section" id="mirrors">
     <div class="case-inner">
         <div class="case-left reveal">
@@ -905,28 +382,16 @@
             <p>Mirrors is a live AI product built entirely by Bogong AI Lab. A triple-layer reflection system — emotional, mental, and synthesis — powered by three AI models working in sequence.</p>
             <p>No templates. No white-label tools. Designed, architected, and deployed from the ground up. It's not a demo. It has real users.</p>
             <div class="case-stats">
-                <div class="case-stat">
-                    <div class="case-stat-num">3</div>
-                    <div class="case-stat-label">AI models in sequence</div>
-                </div>
-                <div class="case-stat">
-                    <div class="case-stat-num">Live</div>
-                    <div class="case-stat-label">Production deployment</div>
-                </div>
-                <div class="case-stat">
-                    <div class="case-stat-num">Any</div>
-                    <div class="case-stat-label">Language supported</div>
-                </div>
-                <div class="case-stat">
-                    <div class="case-stat-num">0</div>
-                    <div class="case-stat-label">Data stored on servers</div>
-                </div>
+                <div class="case-stat"><div class="case-stat-num">3</div><div class="case-stat-label">AI models in sequence</div></div>
+                <div class="case-stat"><div class="case-stat-num">Live</div><div class="case-stat-label">Production deployment</div></div>
+                <div class="case-stat"><div class="case-stat-num">Any</div><div class="case-stat-label">Language supported</div></div>
+                <div class="case-stat"><div class="case-stat-num">0</div><div class="case-stat-label">Data stored on servers</div></div>
             </div>
         </div>
         <div class="case-right reveal">
             <div class="case-preview-tag">bogongai.com</div>
             <div class="case-preview-title">Mirrors by Bogong</div>
-            <div class="case-preview-text">A space to see yourself without distortion. Two AI layers read what you share — one tracks the emotional current, one tracks the thought structure. A third synthesizes both. No advice. No agenda. Just clarity.</div>
+            <div class="case-preview-text">A space to see yourself without distortion. Two AI layers read what you share — one tracks the emotional current, one tracks the thought structure. A third synthesizes both.</div>
             <a href="https://bogongai.com" class="case-preview-link" target="_blank">See the live product</a>
         </div>
     </div>
@@ -938,163 +403,75 @@
         <div class="chat-header reveal">
             <div class="section-tag">Talk to us</div>
             <h2>Start with a question.</h2>
-            <p>Tell us what your business does, where the friction is, or what you've been trying to solve. We'll tell you honestly what AI can do — and what it can't.</p>
+            <p>Tell us what your business does, where the friction is, or what you've been trying to solve.</p>
         </div>
         <div class="chat-box reveal">
             <div class="chat-messages" id="chatMessages">
                 <div class="msg bot">
                     <div class="msg-avatar bot">
-                        <svg class="butterfly-svg" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <g class="wing-left"><ellipse cx="14" cy="18" rx="12" ry="8" fill="rgba(200,169,110,0.85)"/><ellipse cx="13" cy="30" rx="9" ry="6" fill="rgba(200,169,110,0.6)"/></g>
-                            <g class="wing-right"><ellipse cx="34" cy="18" rx="12" ry="8" fill="rgba(200,169,110,0.85)"/><ellipse cx="35" cy="30" rx="9" ry="6" fill="rgba(200,169,110,0.6)"/></g>
-                            <ellipse cx="24" cy="24" rx="2" ry="10" fill="rgba(200,169,110,1)"/>
-                            <line x1="22" y1="14" x2="17" y2="8" stroke="rgba(200,169,110,0.8)" stroke-width="1" stroke-linecap="round"/><circle cx="17" cy="8" r="1.2" fill="rgba(200,169,110,0.8)"/>
-                            <line x1="26" y1="14" x2="31" y2="8" stroke="rgba(200,169,110,0.8)" stroke-width="1" stroke-linecap="round"/><circle cx="31" cy="8" r="1.2" fill="rgba(200,169,110,0.8)"/>
-                        </svg>
+                        <svg class="butterfly-svg" viewBox="0 0 48 48" fill="none"><g class="wing-left"><ellipse cx="14" cy="18" rx="12" ry="8" fill="rgba(200,169,110,0.85)"/><ellipse cx="13" cy="30" rx="9" ry="6" fill="rgba(200,169,110,0.6)"/></g><g class="wing-right"><ellipse cx="34" cy="18" rx="12" ry="8" fill="rgba(200,169,110,0.85)"/><ellipse cx="35" cy="30" rx="9" ry="6" fill="rgba(200,169,110,0.6)"/></g><ellipse cx="24" cy="24" rx="2" ry="10" fill="rgba(200,169,110,1)"/><line x1="22" y1="14" x2="17" y2="8" stroke="rgba(200,169,110,0.8)" stroke-width="1" stroke-linecap="round"/><circle cx="17" cy="8" r="1.2" fill="rgba(200,169,110,0.8)"/><line x1="26" y1="14" x2="31" y2="8" stroke="rgba(200,169,110,0.8)" stroke-width="1" stroke-linecap="round"/><circle cx="31" cy="8" r="1.2" fill="rgba(200,169,110,0.8)"/></svg>
                     </div>
-                    <div class="msg-bubble">Hello. I'm the Bogong AI Lab assistant. Tell me about your business — what you do, what's taking too much time, or what you've been trying to automate. I'll give you an honest picture of what's possible.</div>
+                    <div class="msg-bubble">Hello. I'm the Bogong AI Lab assistant. Tell me about your business — what you do, where the friction is. I'll give you an honest picture of what's possible.</div>
                 </div>
             </div>
             <div class="chat-input-area">
                 <textarea class="chat-input" id="chatInput" placeholder="Describe your business or ask a question..." rows="1"></textarea>
                 <button class="btn-send" id="btnSend" onclick="sendMessage()" title="Send">
-                    <svg class="butterfly-svg" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <!-- Left wings -->
-                        <g class="wing-left">
-                            <ellipse cx="14" cy="18" rx="12" ry="8" fill="rgba(200,169,110,0.85)" />
-                            <ellipse cx="13" cy="30" rx="9" ry="6" fill="rgba(200,169,110,0.6)" />
-                        </g>
-                        <!-- Right wings -->
-                        <g class="wing-right">
-                            <ellipse cx="34" cy="18" rx="12" ry="8" fill="rgba(200,169,110,0.85)" />
-                            <ellipse cx="35" cy="30" rx="9" ry="6" fill="rgba(200,169,110,0.6)" />
-                        </g>
-                        <!-- Body -->
-                        <ellipse cx="24" cy="24" rx="2" ry="10" fill="rgba(200,169,110,1)" />
-                        <!-- Antennae -->
-                        <line x1="22" y1="14" x2="17" y2="8" stroke="rgba(200,169,110,0.8)" stroke-width="1" stroke-linecap="round"/>
-                        <circle cx="17" cy="8" r="1.2" fill="rgba(200,169,110,0.8)"/>
-                        <line x1="26" y1="14" x2="31" y2="8" stroke="rgba(200,169,110,0.8)" stroke-width="1" stroke-linecap="round"/>
-                        <circle cx="31" cy="8" r="1.2" fill="rgba(200,169,110,0.8)"/>
-                    </svg>
+                    <svg class="butterfly-svg" viewBox="0 0 48 48" fill="none"><g class="wing-left"><ellipse cx="14" cy="18" rx="12" ry="8" fill="rgba(200,169,110,0.85)"/><ellipse cx="13" cy="30" rx="9" ry="6" fill="rgba(200,169,110,0.6)"/></g><g class="wing-right"><ellipse cx="34" cy="18" rx="12" ry="8" fill="rgba(200,169,110,0.85)"/><ellipse cx="35" cy="30" rx="9" ry="6" fill="rgba(200,169,110,0.6)"/></g><ellipse cx="24" cy="24" rx="2" ry="10" fill="rgba(200,169,110,1)"/><line x1="22" y1="14" x2="17" y2="8" stroke="rgba(200,169,110,0.8)" stroke-width="1" stroke-linecap="round"/><circle cx="17" cy="8" r="1.2" fill="rgba(200,169,110,0.8)"/><line x1="26" y1="14" x2="31" y2="8" stroke="rgba(200,169,110,0.8)" stroke-width="1" stroke-linecap="round"/><circle cx="31" cy="8" r="1.2" fill="rgba(200,169,110,0.8)"/></svg>
                 </button>
             </div>
         </div>
         <div id="analyze-section" style="display:none;text-align:center;margin-top:20px;">
-    <button onclick="analyzeWorkflow()" style="background:transparent;border:1px solid rgba(200,169,110,0.4);color:var(--gold);font-family:'DM Sans',sans-serif;font-size:11px;letter-spacing:3px;text-transform:uppercase;padding:14px 42px;cursor:pointer;transition:all 0.3s;" onmouseover="this.style.background='rgba(200,169,110,0.08)'" onmouseout="this.style.background='transparent'">Analyze my workflow</button>
-</div>
-<div id="analyze-result" style="display:none;margin-top:24px;background:var(--ink-mid);border:1px solid rgba(200,169,110,0.2);padding:32px 36px;">
-    <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:4px;text-transform:uppercase;color:var(--gold);opacity:0.7;margin-bottom:20px;">Workflow Analysis</div>
-    <div id="analyze-content" style="font-size:15px;line-height:1.8;color:rgba(255,255,255,0.75);"></div>
-</div>
+            <button onclick="analyzeWorkflow()" style="background:transparent;border:1px solid rgba(200,169,110,0.4);color:var(--gold);font-family:'DM Sans',sans-serif;font-size:11px;letter-spacing:3px;text-transform:uppercase;padding:14px 42px;cursor:pointer;">Analyze my workflow</button>
+        </div>
+        <div id="analyze-result" style="display:none;margin-top:24px;background:var(--ink-mid);border:1px solid rgba(200,169,110,0.2);padding:32px 36px;">
+            <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:4px;text-transform:uppercase;color:var(--gold);opacity:0.7;margin-bottom:20px;">Workflow Analysis</div>
+            <div id="analyze-content" style="font-size:15px;line-height:1.8;color:rgba(255,255,255,0.75);"></div>
+        </div>
         <p class="chat-disclaimer">Powered by Claude AI &mdash; Bogong AI Lab</p>
     </div>
 </section>
 
-
 <!-- PRODUCTS -->
-<section class="section" id="products" style="background:var(--surface,#111)">
-    <div style="max-width:1100px;margin:0 auto;padding:0 32px">
+<section class="section" id="products" style="background:var(--ink-soft);border-top:1px solid var(--border)">
+    <div style="max-width:1100px;margin:0 auto">
         <div style="text-align:center;margin-bottom:64px">
-            <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:4px;color:var(--gold,#c8a96e);text-transform:uppercase;margin-bottom:16px">Products &amp; Solutions</div>
-            <h2 style="font-family:'Cormorant Garamond',serif;font-size:42px;font-weight:400;color:#fff;font-style:italic">Built for real businesses. <em>Priced to grow with you.</em></h2>
-            <p style="color:rgba(255,255,255,0.45);font-size:14px;margin-top:12px;max-width:600px;margin-left:auto;margin-right:auto">Each Bogong product is a precision instrument — purpose-built for a specific industry layer, deployed in days, not months.</p>
+            <div class="section-tag">Products &amp; Solutions</div>
+            <h2 style="font-family:'Cormorant Garamond',serif;font-size:clamp(36px,4vw,52px);font-weight:300;color:#fff;font-style:italic">Built for real businesses.<br><em style="color:var(--gold)">Priced to grow with you.</em></h2>
         </div>
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px">
-
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:2px">
             <!-- DIAL -->
-            <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);padding:32px;display:flex;flex-direction:column">
-                <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px">
-                    <div style="font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:3px;color:var(--gold,#c8a96e);text-transform:uppercase">Live · Hospitality</div>
-                </div>
+            <div style="background:var(--ink-mid);padding:32px;display:flex;flex-direction:column;border-top:2px solid transparent;transition:border-color 0.3s" onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='transparent'">
+                <div style="font-family:'DM Mono',monospace;font-size:8px;letter-spacing:3px;color:var(--gold);text-transform:uppercase;margin-bottom:16px">Live · Hospitality</div>
                 <h3 style="font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:400;color:#fff;margin-bottom:10px">Bogong Dial</h3>
-                <p style="color:rgba(255,255,255,0.45);font-size:13px;margin-bottom:20px;line-height:1.6">Caller ID intelligence for restaurants. Know your customer before you say hello.</p>
-                <ul style="list-style:none;color:rgba(255,255,255,0.5);font-size:12px;line-height:2;margin-bottom:24px;flex:1">
-                    <li>✦ Instant caller recognition</li>
-                    <li>✦ Customer name, address &amp; order history</li>
-                    <li>✦ WebRTC — answer calls directly in the app</li>
-                    <li>✦ Google Maps driving directions</li>
-                    <li>✦ Print order slip — Delivery or Pickup</li>
-                    <li>✦ Cloud sync — never lose a record</li>
-                </ul>
-                <div style="margin-bottom:20px">
-                    <span style="font-size:11px;color:rgba(255,255,255,0.3)">$999 setup · </span>
-                    <span style="font-family:'Cormorant Garamond',serif;font-size:28px;color:#fff">$49</span>
-                    <span style="font-size:11px;color:rgba(255,255,255,0.3)"> AUD / month</span>
-                </div>
-                <div style="display:flex;gap:10px">
-                    <a href="/dial-demo.html" style="flex:1;text-align:center;padding:11px;border:1px solid var(--gold,#c8a96e);color:var(--gold,#c8a96e);font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:2px;text-decoration:none;text-transform:uppercase;transition:all 0.2s">Live Demo</a>
-                    <a href="#contact" style="flex:1;text-align:center;padding:11px;background:rgba(200,169,110,0.1);border:1px solid rgba(200,169,110,0.3);color:rgba(255,255,255,0.6);font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:2px;text-decoration:none;text-transform:uppercase">Enquire</a>
-                </div>
+                <p style="color:rgba(255,255,255,0.45);font-size:13px;margin-bottom:20px;line-height:1.6;flex:1">Caller ID intelligence for restaurants. Know your customer before you say hello.</p>
+                <div style="margin-bottom:16px"><span style="font-family:'Cormorant Garamond',serif;font-size:28px;color:#fff">$49</span><span style="font-size:11px;color:rgba(255,255,255,0.3)"> AUD / month</span></div>
+                <a href="#contact" style="text-align:center;padding:11px;border:1px solid var(--gold);color:var(--gold);font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;text-decoration:none;text-transform:uppercase">Enquire</a>
             </div>
-
+            <!-- VISION -->
+            <div style="background:var(--ink-mid);padding:32px;display:flex;flex-direction:column;border-top:2px solid transparent;transition:border-color 0.3s" onmouseover="this.style.borderColor='var(--blue-light)'" onmouseout="this.style.borderColor='transparent'">
+                <div style="font-family:'DM Mono',monospace;font-size:8px;letter-spacing:3px;color:var(--blue-light);text-transform:uppercase;margin-bottom:16px">Live · Geophysics</div>
+                <h3 style="font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:400;color:#fff;margin-bottom:10px">Bogong Vision</h3>
+                <p style="color:rgba(255,255,255,0.45);font-size:13px;margin-bottom:20px;line-height:1.6;flex:1">ERT & GPR subsurface analysis platform. AI anomaly detection. 3D visualization.</p>
+                <div style="margin-bottom:16px"><span style="font-family:'Cormorant Garamond',serif;font-size:28px;color:#fff">Custom</span></div>
+                <a href="https://vision.bogongai.net" target="_blank" style="text-align:center;padding:11px;border:1px solid var(--blue-light);color:var(--blue-light);font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;text-decoration:none;text-transform:uppercase">Live Demo</a>
+            </div>
+            <!-- AETERNO -->
+            <div style="background:var(--ink-mid);padding:32px;display:flex;flex-direction:column;border-top:2px solid transparent;transition:border-color 0.3s" onmouseover="this.style.borderColor='rgba(200,169,110,0.6)'" onmouseout="this.style.borderColor='transparent'">
+                <div style="font-family:'DM Mono',monospace;font-size:8px;letter-spacing:3px;color:rgba(200,169,110,0.7);text-transform:uppercase;margin-bottom:16px">Beta · AI Companion</div>
+                <h3 style="font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:400;color:#fff;margin-bottom:10px">Aeterno</h3>
+                <p style="color:rgba(255,255,255,0.45);font-size:13px;margin-bottom:20px;line-height:1.6;flex:1">Nizam/KR4 based AI companion. Pattern recognition meets self-reflection.</p>
+                <div style="margin-bottom:16px"><span style="font-family:'Cormorant Garamond',serif;font-size:28px;color:#fff">Coming</span></div>
+                <a href="https://bogongai.com/aeterno.html" target="_blank" style="text-align:center;padding:11px;border:1px solid rgba(200,169,110,0.5);color:var(--gold);font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;text-decoration:none;text-transform:uppercase">Early Access</a>
+            </div>
             <!-- LEDGER -->
-            <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);padding:32px;display:flex;flex-direction:column">
-                <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px">
-                    <div style="font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:3px;color:#6aab8a;text-transform:uppercase">Beta · Hospitality</div>
-                </div>
+            <div style="background:var(--ink-mid);padding:32px;display:flex;flex-direction:column;border-top:2px solid transparent;transition:border-color 0.3s" onmouseover="this.style.borderColor='#6aab8a'" onmouseout="this.style.borderColor='transparent'">
+                <div style="font-family:'DM Mono',monospace;font-size:8px;letter-spacing:3px;color:#6aab8a;text-transform:uppercase;margin-bottom:16px">Beta · Hospitality</div>
                 <h3 style="font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:400;color:#fff;margin-bottom:10px">Bogong Ledger</h3>
-                <p style="color:rgba(255,255,255,0.45);font-size:13px;margin-bottom:20px;line-height:1.6">Invoice parsing, expense tracking &amp; Square sales integration. Photograph a bill — AI reads the rest.</p>
-                <ul style="list-style:none;color:rgba(255,255,255,0.5);font-size:12px;line-height:2;margin-bottom:24px;flex:1">
-                    <li>✦ Photograph or upload invoices</li>
-                    <li>✦ Claude AI parses every line item</li>
-                    <li>✦ Category breakdown — produce, meat, dairy</li>
-                    <li>✦ Fixed costs — rent, electricity, staff</li>
-                    <li>✦ Weekly / monthly / yearly reports</li>
-                    <li>✦ Export to Excel or PDF</li>
-                </ul>
-                <div style="margin-bottom:20px">
-                    <span style="font-size:11px;color:rgba(255,255,255,0.3)">$499 setup · </span>
-                    <span style="font-family:'Cormorant Garamond',serif;font-size:28px;color:#fff">$49</span>
-                    <span style="font-size:11px;color:rgba(255,255,255,0.3)"> AUD / month</span>
-                </div>
-                <div style="display:flex;gap:10px">
-                    <a href="/ledger-demo.html" style="flex:1;text-align:center;padding:11px;border:1px solid #6aab8a;color:#6aab8a;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:2px;text-decoration:none;text-transform:uppercase;transition:all 0.2s">Live Demo</a>
-                    <a href="#contact" style="flex:1;text-align:center;padding:11px;background:rgba(106,171,138,0.1);border:1px solid rgba(106,171,138,0.3);color:rgba(255,255,255,0.6);font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:2px;text-decoration:none;text-transform:uppercase">Enquire</a>
-                </div>
+                <p style="color:rgba(255,255,255,0.45);font-size:13px;margin-bottom:20px;line-height:1.6;flex:1">Invoice parsing & expense tracking. Photograph a bill — AI reads the rest.</p>
+                <div style="margin-bottom:16px"><span style="font-family:'Cormorant Garamond',serif;font-size:28px;color:#fff">$49</span><span style="font-size:11px;color:rgba(255,255,255,0.3)"> AUD / month</span></div>
+                <a href="#contact" style="text-align:center;padding:11px;border:1px solid #6aab8a;color:#6aab8a;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;text-decoration:none;text-transform:uppercase">Enquire</a>
             </div>
-
-            <!-- EDGE -->
-            <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);padding:32px;display:flex;flex-direction:column">
-                <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px">
-                    <div style="font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:3px;color:rgba(255,255,255,0.4);text-transform:uppercase">Beta · Retail</div>
-                </div>
-                <h3 style="font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:400;color:#fff;margin-bottom:10px">Bogong Edge</h3>
-                <p style="color:rgba(255,255,255,0.45);font-size:13px;margin-bottom:20px;line-height:1.6">Z Report intelligence for multi-store retailers. Daily, weekly, monthly — all in one view.</p>
-                <ul style="list-style:none;color:rgba(255,255,255,0.5);font-size:12px;line-height:2;margin-bottom:24px;flex:1">
-                    <li>✦ Upload Z Reports — data accumulates</li>
-                    <li>✦ Per-store revenue breakdown</li>
-                    <li>✦ Weekly &amp; monthly trend analysis</li>
-                    <li>✦ Returns tracking by location</li>
-                    <li>✦ Export to Excel</li>
-                </ul>
-                <div style="margin-bottom:20px">
-                    <span style="font-size:11px;color:rgba(255,255,255,0.3)">From $2,500 setup · </span>
-                    <span style="font-family:'Cormorant Garamond',serif;font-size:28px;color:#fff">$299</span>
-                    <span style="font-size:11px;color:rgba(255,255,255,0.3)"> AUD / month</span>
-                </div>
-                <div style="display:flex;gap:10px">
-                    <a href="#contact" style="flex:1;text-align:center;padding:11px;border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.5);font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:2px;text-decoration:none;text-transform:uppercase">Enquire</a>
-                </div>
-            </div>
-
-            <!-- TUCKER -->
-            <div style="background:rgba(255,255,255,0.02);border:1px dashed rgba(255,255,255,0.06);padding:32px;display:flex;flex-direction:column;opacity:0.7">
-                <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px">
-                    <div style="font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:3px;color:rgba(255,255,255,0.3);text-transform:uppercase">Coming Soon</div>
-                </div>
-                <h3 style="font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:400;color:rgba(255,255,255,0.6);margin-bottom:10px">Bogong Tucker</h3>
-                <p style="color:rgba(255,255,255,0.3);font-size:13px;margin-bottom:20px;line-height:1.6">Commission-free food ordering for restaurants. QR code to order — no UberEats, no 30% cut.</p>
-                <ul style="list-style:none;color:rgba(255,255,255,0.3);font-size:12px;line-height:2;margin-bottom:24px;flex:1">
-                    <li>✦ QR code ordering — web &amp; app</li>
-                    <li>✦ Square menu auto-import</li>
-                    <li>✦ Integrates with Bogong Dial</li>
-                    <li>✦ Delivery + Pickup</li>
-                    <li>✦ Zero commission</li>
-                </ul>
-                <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:3px;color:rgba(255,255,255,0.25);text-transform:uppercase;text-align:center;padding:11px;border:1px dashed rgba(255,255,255,0.1)">Coming Soon</div>
-            </div>
-
         </div>
     </div>
 </section>
@@ -1109,18 +486,9 @@
             <a href="mailto:studio@bogongai.net" class="contact-email">studio@bogongai.net</a>
         </div>
         <div class="contact-right reveal">
-            <div class="form-group">
-                <label class="form-label">Your name</label>
-                <input type="text" class="form-input" placeholder="Name" id="formName">
-            </div>
-            <div class="form-group">
-                <label class="form-label">Email</label>
-                <input type="email" class="form-input" placeholder="you@company.com" id="formEmail">
-            </div>
-            <div class="form-group">
-                <label class="form-label">Tell us about your business</label>
-                <textarea class="form-textarea" placeholder="What you do, what's not working, what you're trying to build..." id="formMessage"></textarea>
-            </div>
+            <div class="form-group"><label class="form-label">Your name</label><input type="text" class="form-input" placeholder="Name" id="formName"></div>
+            <div class="form-group"><label class="form-label">Email</label><input type="email" class="form-input" placeholder="you@company.com" id="formEmail"></div>
+            <div class="form-group"><label class="form-label">Tell us about your business</label><textarea class="form-textarea" placeholder="What you do, what's not working, what you're trying to build..." id="formMessage"></textarea></div>
             <button class="btn-submit" onclick="submitForm()">Send message</button>
             <div id="formStatus" style="margin-top:14px;font-size:12px;letter-spacing:2px;color:var(--gold);text-align:center;min-height:18px;"></div>
         </div>
@@ -1145,223 +513,338 @@
     </div>
 </footer>
 
+<!-- ── THREE.JS GEODESIC SPHERE ── -->
 <script>
-    var API_BASE = "";
-    var chatHistory = [];
-    var BUTTERFLY_SVG = '<svg class="butterfly-svg" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><g class="wing-left"><ellipse cx="14" cy="18" rx="12" ry="8" fill="rgba(200,169,110,0.85)"/><ellipse cx="13" cy="30" rx="9" ry="6" fill="rgba(200,169,110,0.6)"/></g><g class="wing-right"><ellipse cx="34" cy="18" rx="12" ry="8" fill="rgba(200,169,110,0.85)"/><ellipse cx="35" cy="30" rx="9" ry="6" fill="rgba(200,169,110,0.6)"/></g><ellipse cx="24" cy="24" rx="2" ry="10" fill="rgba(200,169,110,1)"/><line x1="22" y1="14" x2="17" y2="8" stroke="rgba(200,169,110,0.8)" stroke-width="1" stroke-linecap="round"/><circle cx="17" cy="8" r="1.2" fill="rgba(200,169,110,0.8)"/><line x1="26" y1="14" x2="31" y2="8" stroke="rgba(200,169,110,0.8)" stroke-width="1" stroke-linecap="round"/><circle cx="31" cy="8" r="1.2" fill="rgba(200,169,110,0.8)"/></svg>';
+(function() {
+    const PRODUCTS = [
+        { name: 'Bogong Vision', tag: 'Geophysics · Live', desc: 'ERT & GPR subsurface analysis. AI anomaly detection. 3D visualization.', color: 0x4a8ab5, url: 'https://vision.bogongai.net', status: 'live' },
+        { name: 'Aeterno', tag: 'AI Companion · Beta', desc: 'Nizam/KR4 based AI companion. Pattern recognition meets self-reflection.', color: 0xc8a96e, url: 'https://bogongai.com/aeterno.html', status: 'beta' },
+        { name: 'Mirrors', tag: 'Reflection · Live', desc: 'Triple-layer AI reflection system. Emotional & cognitive clarity.', color: 0x7ab5a8, url: 'https://bogongai.com', status: 'live' },
+        { name: 'Bogong Dial', tag: 'Hospitality · Live', desc: 'Caller ID intelligence for restaurants. WebRTC + smart printing.', color: 0xb5944a, url: '#products', status: 'live' },
+        { name: 'Maestro', tag: 'AI Workflow · Dev', desc: 'Intent-driven generative UI. Business intelligence orchestrator.', color: 0x6a7ab5, url: '#', status: 'dev' },
+        { name: 'Bogong OS', tag: 'Platform · Soon', desc: 'Mirrors · UniDash · Maestro unified. The full ecosystem.', color: 0xd4b87a, url: '#', status: 'soon' },
+    ];
 
-    var SYSTEM_PROMPT = "";
-   var summaryTimer = null;
+    const canvas = document.getElementById('heroCanvas');
+    const container = canvas.parentElement;
+
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+    renderer.setClearColor(0x000000, 0);
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 1000);
+    camera.position.set(0, 0, 5.8);
+
+    // Işıklar
+    scene.add(new THREE.AmbientLight(0x0d0d1a, 3));
+    const dl = new THREE.DirectionalLight(0xc8a96e, 1.4);
+    dl.position.set(4, 5, 6); scene.add(dl);
+    const dl2 = new THREE.DirectionalLight(0x4a8ab5, 0.7);
+    dl2.position.set(-4, -2, -4); scene.add(dl2);
+    const dl3 = new THREE.DirectionalLight(0xffffff, 0.3);
+    dl3.position.set(0, -5, 2); scene.add(dl3);
+
+    const group = new THREE.Group();
+    scene.add(group);
+
+    // Geodesic sphere — IcosahedronGeometry detail=2
+    const geoSphere = new THREE.IcosahedronGeometry(2, 2);
+    const posAttr = geoSphere.attributes.position;
+    const numFaces = posAttr.count / 3;
+
+    const productColors = PRODUCTS.map(function(p) { return new THREE.Color(p.color); });
+    const faces = [];
+
+    for (let i = 0; i < numFaces; i++) {
+        const triGeo = new THREE.BufferGeometry();
+        const verts = new Float32Array(9);
+        for (let v = 0; v < 3; v++) {
+            const idx = i * 3 + v;
+            verts[v*3]   = posAttr.getX(idx);
+            verts[v*3+1] = posAttr.getY(idx);
+            verts[v*3+2] = posAttr.getZ(idx);
+        }
+        triGeo.setAttribute('position', new THREE.BufferAttribute(verts, 3));
+        triGeo.computeVertexNormals();
+
+        const productIdx = Math.floor(i / numFaces * PRODUCTS.length);
+        const baseColor = productColors[productIdx % productColors.length].clone();
+        const variation = (Math.random() - 0.5) * 0.06;
+        baseColor.r = Math.max(0, Math.min(1, baseColor.r + variation));
+        baseColor.g = Math.max(0, Math.min(1, baseColor.g + variation));
+        baseColor.b = Math.max(0, Math.min(1, baseColor.b + variation));
+
+        const mat = new THREE.MeshPhongMaterial({
+            color: baseColor,
+            transparent: true,
+            opacity: 0.5,
+            shininess: 100,
+            specular: new THREE.Color(0x222233),
+            side: THREE.FrontSide,
+        });
+
+        const mesh = new THREE.Mesh(triGeo, mat);
+        mesh.userData = { productIdx, baseColor: baseColor.clone(), isHovered: false };
+        group.add(mesh);
+        faces.push(mesh);
+    }
+
+    // Wireframe
+    const wireGeo = new THREE.IcosahedronGeometry(2.01, 2);
+    const wireMat = new THREE.MeshBasicMaterial({ color: 0xc8a96e, wireframe: true, transparent: true, opacity: 0.12 });
+    group.add(new THREE.Mesh(wireGeo, wireMat));
+
+    // İç koyu küre
+    const innerGeo = new THREE.SphereGeometry(1.72, 32, 32);
+    const innerMat = new THREE.MeshBasicMaterial({ color: 0x060610, transparent: true, opacity: 0.9 });
+    group.add(new THREE.Mesh(innerGeo, innerMat));
+
+    // Raycaster
+    const raycaster = new THREE.Raycaster();
+    const mouse = new THREE.Vector2(-999, -999);
+    let hoveredProduct = null;
+    let tooltipX = 0, tooltipY = 0;
+    const tooltip = document.getElementById('sphereTooltip');
+
+    function updateTooltip(productIdx) {
+        if (productIdx === null) { tooltip.classList.remove('visible'); return; }
+        const p = PRODUCTS[productIdx];
+        document.getElementById('ttTag').textContent = p.tag;
+        document.getElementById('ttName').textContent = p.name;
+        document.getElementById('ttDesc').textContent = p.desc;
+        document.getElementById('ttAction').textContent = p.status === 'soon' || p.status === 'dev' ? 'Coming soon' : 'Click to explore →';
+        tooltip.classList.add('visible');
+        const rect = container.getBoundingClientRect();
+        let tx = tooltipX - rect.left + 20;
+        let ty = tooltipY - rect.top + 20;
+        if (tx + 230 > rect.width) tx = tooltipX - rect.left - 240;
+        if (ty + 150 > rect.height) ty = tooltipY - rect.top - 160;
+        tooltip.style.left = Math.max(0, tx) + 'px';
+        tooltip.style.top = Math.max(0, ty) + 'px';
+    }
+
+    canvas.addEventListener('mousemove', function(e) {
+        const rect = canvas.getBoundingClientRect();
+        mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+        mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+        tooltipX = e.clientX; tooltipY = e.clientY;
+    });
+
+    canvas.addEventListener('mouseleave', function() {
+        mouse.set(-999, -999);
+        tooltip.classList.remove('visible');
+        hoveredProduct = null;
+    });
+
+    canvas.addEventListener('click', function() {
+        if (hoveredProduct !== null) {
+            const p = PRODUCTS[hoveredProduct];
+            if (p.url && p.url !== '#' && p.status !== 'soon' && p.status !== 'dev') {
+                window.open(p.url, '_blank');
+            }
+        }
+    });
+
+    // Touch
+    canvas.addEventListener('touchstart', function(e) {
+        e.preventDefault();
+        const t = e.touches[0];
+        const rect = canvas.getBoundingClientRect();
+        mouse.x = ((t.clientX - rect.left) / rect.width) * 2 - 1;
+        mouse.y = -((t.clientY - rect.top) / rect.height) * 2 + 1;
+        tooltipX = t.clientX; tooltipY = t.clientY;
+    }, { passive: false });
+
+    canvas.addEventListener('touchend', function() {
+        setTimeout(function() { mouse.set(-999,-999); tooltip.classList.remove('visible'); }, 2000);
+    });
+
+    // Drag
+    let isDrag = false, lastX = 0, lastY = 0;
+    let rotX = 0.2, rotY = 0.3;
+    let velX = 0, velY = 0.004;
+
+    canvas.addEventListener('mousedown', function(e) { isDrag = true; lastX = e.clientX; lastY = e.clientY; velX = 0; velY = 0; });
+    window.addEventListener('mouseup', function() { isDrag = false; });
+    window.addEventListener('mousemove', function(e) {
+        if (!isDrag) return;
+        velY = (e.clientX - lastX) * 0.006;
+        velX = (e.clientY - lastY) * 0.006;
+        rotY += velY; rotX += velX;
+        lastX = e.clientX; lastY = e.clientY;
+    });
+
+    // Resize
+    function resize() {
+        const w = container.clientWidth, h = container.clientHeight;
+        if (w <= 0 || h <= 0) return;
+        renderer.setSize(w, h, false);
+        camera.aspect = w / h;
+        camera.updateProjectionMatrix();
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    // Animate
+    let lastT = 0;
+    function animate(ts) {
+        requestAnimationFrame(animate);
+        if (ts - lastT < 30) return;
+        lastT = ts;
+
+        if (!isDrag) { velY *= 0.97; velX *= 0.97; velY += 0.0006; }
+        rotY += velY; rotX += velX;
+        rotX = Math.max(-0.7, Math.min(0.7, rotX));
+        group.rotation.y = rotY;
+        group.rotation.x = rotX;
+
+        // Hover detection
+        raycaster.setFromCamera(mouse, camera);
+        const hits = raycaster.intersectObjects(faces);
+
+        faces.forEach(function(f) {
+            f.material.opacity = 0.5;
+            f.material.emissive = new THREE.Color(0x000000);
+            f.userData.isHovered = false;
+        });
+
+        if (hits.length > 0) {
+            const pIdx = hits[0].object.userData.productIdx;
+            faces.forEach(function(f) {
+                if (f.userData.productIdx === pIdx) {
+                    f.material.opacity = 0.88;
+                    f.material.emissive = new THREE.Color(0x0a0818);
+                    f.userData.isHovered = true;
+                } else {
+                    f.material.opacity = 0.28;
+                }
+            });
+            if (hoveredProduct !== pIdx) {
+                hoveredProduct = pIdx;
+                updateTooltip(pIdx);
+            }
+            const p = PRODUCTS[pIdx];
+            canvas.style.cursor = (p.status === 'live' || p.status === 'beta') ? 'pointer' : 'default';
+        } else {
+            if (hoveredProduct !== null) { hoveredProduct = null; updateTooltip(null); }
+            canvas.style.cursor = isDrag ? 'grabbing' : 'grab';
+        }
+
+        wireMat.opacity = hoveredProduct !== null ? 0.22 : 0.12;
+        renderer.render(scene, camera);
+    }
+    animate(0);
+})();
+</script>
+
+<!-- Mevcut JS (chat, form, vs.) -->
+<script>
+var API_BASE = "";
+var chatHistory = [];
+var BUTTERFLY_SVG = '<svg class="butterfly-svg" viewBox="0 0 48 48" fill="none"><g class="wing-left"><ellipse cx="14" cy="18" rx="12" ry="8" fill="rgba(200,169,110,0.85)"/><ellipse cx="13" cy="30" rx="9" ry="6" fill="rgba(200,169,110,0.6)"/></g><g class="wing-right"><ellipse cx="34" cy="18" rx="12" ry="8" fill="rgba(200,169,110,0.85)"/><ellipse cx="35" cy="30" rx="9" ry="6" fill="rgba(200,169,110,0.6)"/></g><ellipse cx="24" cy="24" rx="2" ry="10" fill="rgba(200,169,110,1)"/><line x1="22" y1="14" x2="17" y2="8" stroke="rgba(200,169,110,0.8)" stroke-width="1" stroke-linecap="round"/><circle cx="17" cy="8" r="1.2" fill="rgba(200,169,110,0.8)"/><line x1="26" y1="14" x2="31" y2="8" stroke="rgba(200,169,110,0.8)" stroke-width="1" stroke-linecap="round"/><circle cx="31" cy="8" r="1.2" fill="rgba(200,169,110,0.8)"/></svg>';
+var SYSTEM_PROMPT = "";
+var summaryTimer = null;
 
 function scheduleSummary() {
     if (summaryTimer) clearTimeout(summaryTimer);
     if (chatHistory.length < 2) return;
     summaryTimer = setTimeout(function() {
-        fetch('/api/summary', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ messages: chatHistory })
-        }).catch(function(){});
+        fetch('/api/summary', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ messages: chatHistory }) }).catch(function(){});
     }, 120000);
 }
-    async function sendMessage() {
-        var input = document.getElementById('chatInput');
-        var text = input.value.trim();
-        if (!text) return;
 
-        input.value = '';
-        input.style.height = 'auto';
-
-        appendMessage('user', text);
-        chatHistory.push({ role: 'user', content: text });
-        scheduleSummary();
-        var typingEl = appendTyping();
-        var btnSend = document.getElementById('btnSend');
-        btnSend.classList.add('thinking');
-
-        try {
-            var response = await fetch('/api/chat', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    messages: chatHistory,
-                    system: SYSTEM_PROMPT
-                })
-            });
-
-            typingEl.remove();
-            btnSend.classList.remove('thinking');
-
-            // Create bot message bubble for streaming
-            var botDiv = appendMessage('bot', '');
-            var bubble = botDiv.querySelector('.msg-bubble');
-            var reply = '';
-
-            var reader = response.body.getReader();
-            var decoder = new TextDecoder();
-            var buffer = '';
-
-            while (true) {
-                var chunk = await reader.read();
-                if (chunk.done) break;
-                buffer += decoder.decode(chunk.value, { stream: true });
-                var lines = buffer.split('\n');
-                buffer = lines.pop(); // keep incomplete line
-                for (var i = 0; i < lines.length; i++) {
-                    var line = lines[i].trim();
-                    if (!line.startsWith('data: ')) continue;
-                    var payload = line.slice(6).trim();
-                    if (payload === '[DONE]') break;
-                    try {
-                        var evt = JSON.parse(payload);
-                        if (evt.text) {
-                            reply += evt.text;
-                            var chars = evt.text.split('');
-                            for (var c = 0; c < chars.length; c++) {
-                                await new Promise(function(resolve) { setTimeout(resolve, 18); });
-                                bubble.textContent += chars[c];
-                                bubble.scrollIntoView({ block: 'end' });
-                            }
-                        }
-                        if (evt.error) {
-                            bubble.textContent = 'Error: ' + evt.error;
-                        }
-                    } catch (_) {}
-                }
+async function sendMessage() {
+    var input = document.getElementById('chatInput');
+    var text = input.value.trim();
+    if (!text) return;
+    input.value = ''; input.style.height = 'auto';
+    appendMessage('user', text);
+    chatHistory.push({ role: 'user', content: text });
+    scheduleSummary();
+    var typingEl = appendTyping();
+    var btnSend = document.getElementById('btnSend');
+    btnSend.classList.add('thinking');
+    try {
+        var response = await fetch('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ messages: chatHistory, system: SYSTEM_PROMPT }) });
+        typingEl.remove(); btnSend.classList.remove('thinking');
+        var botDiv = appendMessage('bot', '');
+        var bubble = botDiv.querySelector('.msg-bubble');
+        var reply = '';
+        var reader = response.body.getReader();
+        var decoder = new TextDecoder();
+        var buffer = '';
+        while (true) {
+            var chunk = await reader.read();
+            if (chunk.done) break;
+            buffer += decoder.decode(chunk.value, { stream: true });
+            var lines = buffer.split('\n'); buffer = lines.pop();
+            for (var i = 0; i < lines.length; i++) {
+                var line = lines[i].trim();
+                if (!line.startsWith('data: ')) continue;
+                var payload = line.slice(6).trim();
+                if (payload === '[DONE]') break;
+                try { var evt = JSON.parse(payload); if (evt.text) { reply += evt.text; bubble.textContent += evt.text; bubble.scrollIntoView({ block: 'end' }); } } catch (_) {}
             }
-
-            chatHistory.push({ role: 'assistant', content: reply });
-            if (chatHistory.length >= 2) {
-                document.getElementById('analyze-section').style.display = 'block';
-            }
-        } catch(e) {
-            typingEl.remove();
-            btnSend.classList.remove('thinking');
-            appendMessage('bot', 'Connection error. Please try again or email studio@bogongai.net');
         }
+        chatHistory.push({ role: 'assistant', content: reply });
+        if (chatHistory.length >= 2) document.getElementById('analyze-section').style.display = 'block';
+    } catch(e) {
+        typingEl.remove(); btnSend.classList.remove('thinking');
+        appendMessage('bot', 'Connection error. Please try again or email studio@bogongai.net');
     }
+}
+
 async function analyzeWorkflow() {
     document.getElementById('analyze-result').style.display = 'block';
     document.getElementById('analyze-content').innerHTML = '<div class="typing"><span></span><span></span><span></span></div>';
-    
     try {
-        var response = await fetch('/api/analyze', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                messages: chatHistory
-            })
-        });
+        var response = await fetch('/api/analyze', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ messages: chatHistory }) });
         var data = await response.json();
-        var result = data.result || 'Could not generate analysis.';
-        document.getElementById('analyze-content').innerHTML = result.replace(/\\([^]+)\\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
-    } catch(e) {
-        document.getElementById('analyze-content').innerHTML = 'Connection error. Please try again.';
-    }
+        document.getElementById('analyze-content').innerHTML = (data.result || 'Could not generate analysis.').replace(/\n/g, '<br>');
+    } catch(e) { document.getElementById('analyze-content').innerHTML = 'Connection error.'; }
 }
-    function appendMessage(role, text) {
-        var container = document.getElementById('chatMessages');
-        var div = document.createElement('div');
-        div.className = 'msg ' + (role === 'user' ? 'user' : 'bot');
-        var avatar = document.createElement('div');
-        avatar.className = 'msg-avatar ' + (role === 'user' ? 'user-av' : 'bot');
-        if (role === 'user') {
-            avatar.textContent = 'You';
-        } else {
-            avatar.innerHTML = BUTTERFLY_SVG;
-        }
-        var bubble = document.createElement('div');
-        bubble.className = 'msg-bubble';
-        bubble.textContent = text;
-        div.appendChild(avatar);
-        div.appendChild(bubble);
-        container.appendChild(div);
-        container.scrollTop = container.scrollHeight;
-        return div;
-    }
 
-    function appendTyping() {
-        var container = document.getElementById('chatMessages');
-        var div = document.createElement('div');
-        div.className = 'msg bot';
-        var avatar = document.createElement('div');
-        avatar.className = 'msg-avatar bot';
-        avatar.innerHTML = BUTTERFLY_SVG;
-        var bubble = document.createElement('div');
-        bubble.className = 'msg-bubble';
-        bubble.innerHTML = '<div class="typing"><span></span><span></span><span></span></div>';
-        div.appendChild(avatar);
-        div.appendChild(bubble);
-        container.appendChild(div);
-        container.scrollTop = container.scrollHeight;
-        return div;
-    }
+function appendMessage(role, text) {
+    var container = document.getElementById('chatMessages');
+    var div = document.createElement('div'); div.className = 'msg ' + (role === 'user' ? 'user' : 'bot');
+    var avatar = document.createElement('div'); avatar.className = 'msg-avatar ' + (role === 'user' ? 'user-av' : 'bot');
+    if (role === 'user') { avatar.textContent = 'You'; } else { avatar.innerHTML = BUTTERFLY_SVG; }
+    var bubble = document.createElement('div'); bubble.className = 'msg-bubble'; bubble.textContent = text;
+    div.appendChild(avatar); div.appendChild(bubble); container.appendChild(div);
+    container.scrollTop = container.scrollHeight; return div;
+}
 
-    // submitForm defined below
+function appendTyping() {
+    var container = document.getElementById('chatMessages');
+    var div = document.createElement('div'); div.className = 'msg bot';
+    var avatar = document.createElement('div'); avatar.className = 'msg-avatar bot'; avatar.innerHTML = BUTTERFLY_SVG;
+    var bubble = document.createElement('div'); bubble.className = 'msg-bubble'; bubble.innerHTML = '<div class="typing"><span></span><span></span><span></span></div>';
+    div.appendChild(avatar); div.appendChild(bubble); container.appendChild(div);
+    container.scrollTop = container.scrollHeight; return div;
+}
 
-    document.getElementById('chatInput').addEventListener('keydown', function(e) {
-        if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            sendMessage();
-        }
-    });
+document.getElementById('chatInput').addEventListener('keydown', function(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } });
+document.getElementById('chatInput').addEventListener('input', function() { this.style.height = 'auto'; this.style.height = Math.min(this.scrollHeight, 120) + 'px'; });
 
-    document.getElementById('chatInput').addEventListener('input', function() {
-        this.style.height = 'auto';
-        this.style.height = Math.min(this.scrollHeight, 120) + 'px';
-    });
+var observer = new IntersectionObserver(function(entries) { entries.forEach(function(entry) { if (entry.isIntersecting) entry.target.classList.add('visible'); }); }, { threshold: 0.1 });
+document.querySelectorAll('.reveal').forEach(function(el) { observer.observe(el); });
 
-    var observer = new IntersectionObserver(function(entries) {
-        entries.forEach(function(entry) {
-            if (entry.isIntersecting) entry.target.classList.add('visible');
-        });
-    }, { threshold: 0.1 });
-
-    document.querySelectorAll('.reveal').forEach(function(el) {
-        observer.observe(el);
-    });
-    async function submitForm() {
+async function submitForm() {
     var name = document.getElementById('formName').value.trim();
     var email = document.getElementById('formEmail').value.trim();
     var message = document.getElementById('formMessage').value.trim();
     var status = document.getElementById('formStatus');
-    
-    if (!email || !message) {
-        status.textContent = 'Please enter your email and message.';
-        return;
-    }
-    
-    var btn = document.querySelector('.btn-submit');
-    btn.textContent = 'Sending...';
-    btn.disabled = true;
-    status.textContent = '';
-    
+    if (!email || !message) { status.textContent = 'Please enter your email and message.'; return; }
+    var btn = document.querySelector('.btn-submit'); btn.textContent = 'Sending...'; btn.disabled = true; status.textContent = '';
     try {
-        var r = await fetch('/api/contact', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name: name, email: email, message: message })
-        });
+        var r = await fetch('/api/contact', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, email, message }) });
         var d = await r.json();
-        if (d.ok) {
-            btn.textContent = 'Sent ✓';
-            status.textContent = 'Message received. We will be in touch.';
-            document.getElementById('formName').value = '';
-            document.getElementById('formEmail').value = '';
-            document.getElementById('formMessage').value = '';
-        } else {
-            btn.textContent = 'Send message';
-            btn.disabled = false;
-            status.textContent = 'Something went wrong. Please try again.';
-        }
-    } catch(e) {
-        btn.textContent = 'Send message';
-        btn.disabled = false;
-        status.textContent = 'Connection error. Please try again.';
-    }
+        if (d.ok) { btn.textContent = 'Sent ✓'; status.textContent = 'Message received. We will be in touch.'; document.getElementById('formName').value=''; document.getElementById('formEmail').value=''; document.getElementById('formMessage').value=''; }
+        else { btn.textContent = 'Send message'; btn.disabled = false; status.textContent = 'Something went wrong.'; }
+    } catch(e) { btn.textContent = 'Send message'; btn.disabled = false; status.textContent = 'Connection error.'; }
 }
 </script>
-
 
 <!-- FLOATING CHAT BUTTON -->
 <div id="floatingChat" style="position:fixed;right:0;top:50%;transform:translateY(-50%);z-index:100">
@@ -1371,7 +854,7 @@ async function analyzeWorkflow() {
     color:#f0c96a;cursor:pointer;padding:14px 10px;
     box-shadow:-4px 0 20px rgba(0,0,0,0.3);transition:all 0.2s">
     <span style="font-size:20px">🎧</span>
-    <span style="font-family:'JetBrains Mono',monospace;font-size:7px;letter-spacing:2px;
+    <span style="font-family:'DM Mono',monospace;font-size:7px;letter-spacing:2px;
     color:rgba(240,201,106,0.7);text-transform:uppercase;writing-mode:vertical-rl;
     text-orientation:mixed;transform:rotate(180deg);margin-top:4px">Ask us</span>
   </button>
@@ -1379,41 +862,24 @@ async function analyzeWorkflow() {
 
 <!-- FLOATING CHAT PANEL -->
 <div id="floatingPanel" style="display:none;position:fixed;right:0;top:50%;transform:translateY(-50%);z-index:101;width:340px;max-height:70vh;background:#1a1208;border:1px solid rgba(200,169,110,0.25);border-right:none;box-shadow:-8px 0 40px rgba(0,0,0,0.5)">
-  
-  <!-- Panel header -->
-  <div style="display:flex;justify-content:space-between;align-items:center;
-    padding:14px 16px;border-bottom:1px solid rgba(200,169,110,0.15)">
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-bottom:1px solid rgba(200,169,110,0.15)">
     <div style="display:flex;align-items:center;gap:8px">
       <span style="font-size:16px">🎧</span>
-      <span style="font-family:'Cormorant Garamond',serif;font-size:16px;
-        color:#f0c96a;font-style:italic">Bogong AI Assistant</span>
+      <span style="font-family:'Cormorant Garamond',serif;font-size:16px;color:#f0c96a;font-style:italic">Bogong AI Assistant</span>
     </div>
-    <button onclick="toggleFloatingChat()"
-      style="background:none;border:none;color:rgba(255,255,255,0.4);
-      cursor:pointer;font-size:18px;padding:2px 6px">×</button>
+    <button onclick="toggleFloatingChat()" style="background:none;border:none;color:rgba(255,255,255,0.4);cursor:pointer;font-size:18px;padding:2px 6px">×</button>
   </div>
-  
-  <!-- Messages -->
-  <div id="floatMessages" style="flex:1;overflow-y:auto;padding:14px;
-    display:flex;flex-direction:column;gap:10px;max-height:calc(70vh - 110px)">
-    <div style="background:rgba(200,169,110,0.08);border:1px solid rgba(200,169,110,0.15);
-      padding:10px 12px;font-size:12px;color:rgba(255,255,255,0.65);line-height:1.6">
-      Hello. Tell me about your business — what you do, where the friction is. 
-      I'll give you an honest picture of what AI can do.
+  <div id="floatMessages" style="flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;max-height:calc(70vh - 110px)">
+    <div style="background:rgba(200,169,110,0.08);border:1px solid rgba(200,169,110,0.15);padding:10px 12px;font-size:12px;color:rgba(255,255,255,0.65);line-height:1.6">
+      Hello. Tell me about your business — what you do, where the friction is. I'll give you an honest picture of what AI can do.
     </div>
   </div>
-  
-  <!-- Input -->
   <div style="padding:10px;border-top:1px solid rgba(200,169,110,0.15);display:flex;gap:8px">
     <textarea id="floatInput" placeholder="Type a message..." rows="1"
-      style="flex:1;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);
-      color:rgba(255,255,255,0.8);font-family:'DM Sans',sans-serif;font-size:12px;
-      padding:8px 10px;resize:none;outline:none;max-height:80px"
+      style="flex:1;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.8);font-family:'DM Sans',sans-serif;font-size:12px;padding:8px 10px;resize:none;outline:none;max-height:80px"
       onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendFloatMsg()}"
       oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,80)+'px'"></textarea>
-    <button onclick="sendFloatMsg()"
-      style="background:rgba(200,169,110,0.15);border:1px solid rgba(200,169,110,0.3);
-      color:#f0c96a;cursor:pointer;padding:8px 12px;font-size:14px;align-self:flex-end">→</button>
+    <button onclick="sendFloatMsg()" style="background:rgba(200,169,110,0.15);border:1px solid rgba(200,169,110,0.3);color:#f0c96a;cursor:pointer;padding:8px 12px;font-size:14px;align-self:flex-end">→</button>
   </div>
 </div>
 
@@ -1428,7 +894,6 @@ function toggleFloatingChat() {
   if (floatOpen) {
     panel.style.display = 'flex';
     panel.style.flexDirection = 'column';
-    panel.style.flexWrap = 'nowrap';
     btn.style.display = 'none';
     document.getElementById('floatInput').focus();
   } else {
@@ -1441,76 +906,51 @@ async function sendFloatMsg() {
   var input = document.getElementById('floatInput');
   var text = input.value.trim();
   if (!text) return;
-  input.value = '';
-  input.style.height = 'auto';
-
+  input.value = ''; input.style.height = 'auto';
   addFloatMsg('user', text);
   floatHistory.push({ role: 'user', content: text });
   addFloatMsg('assistant', '...');
-
   try {
     var r = await fetch('/api/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ messages: floatHistory, system: '' })
     });
-
     if (!r.ok) { updateLastFloatMsg('Connection error. Please try again.'); return; }
-
-    // Streaming SSE okuma
     var reader = r.body.getReader();
     var decoder = new TextDecoder();
     var fullReply = '';
-
     while (true) {
       var result = await reader.read();
       if (result.done) break;
       var chunk = decoder.decode(result.value, { stream: true });
-      var lines = chunk.split("\n");
+      var lines = chunk.split('\n');
       for (var i = 0; i < lines.length; i++) {
         var line = lines[i].trim();
         if (!line.startsWith('data: ')) continue;
         var jsonStr = line.slice(6).trim();
         if (jsonStr === '[DONE]') continue;
-        try {
-          var evt = JSON.parse(jsonStr);
-          if (evt.text) {
-            fullReply += evt.text;
-            updateLastFloatMsg(fullReply);
-          }
-        } catch(e) {}
+        try { var evt = JSON.parse(jsonStr); if (evt.text) { fullReply += evt.text; updateLastFloatMsg(fullReply); } } catch(e) {}
       }
     }
-
     if (!fullReply) fullReply = 'I had trouble responding. Please try again.';
     floatHistory.push({ role: 'assistant', content: fullReply });
-
-    // 2 dk sonra summary gönder
     if (floatHistory.length >= 4) {
       setTimeout(function() {
-        fetch('/api/summary', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ messages: floatHistory })
-        }).catch(function(){});
+        fetch('/api/summary', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ messages: floatHistory }) }).catch(function(){});
       }, 120000);
     }
-  } catch(e) {
-    updateLastFloatMsg('Connection error. Please try again.');
-  }
+  } catch(e) { updateLastFloatMsg('Connection error. Please try again.'); }
 }
 
 function addFloatMsg(role, text) {
   var msgs = document.getElementById('floatMessages');
   var div = document.createElement('div');
-  div.style.cssText = role === 'user'
-    ? 'text-align:right'
-    : '';
+  div.style.cssText = role === 'user' ? 'text-align:right' : '';
   div.innerHTML = '<div style="display:inline-block;max-width:85%;background:' +
     (role === 'user' ? 'rgba(200,169,110,0.15);border:1px solid rgba(200,169,110,0.25)' : 'rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08)') +
-    ';padding:8px 12px;font-size:12px;color:rgba(255,255,255,' +
-    (role === 'user' ? '0.8' : '0.65') +
-    ');line-height:1.6">' + text.replace(/</g,'&lt;') + '</div>';
+    ';padding:8px 12px;font-size:12px;color:rgba(255,255,255,' + (role === 'user' ? '0.8' : '0.65') + ');line-height:1.6">' +
+    text.replace(/</g,'&lt;') + '</div>';
   msgs.appendChild(div);
   msgs.scrollTop = msgs.scrollHeight;
 }
@@ -1524,16 +964,4 @@ function updateLastFloatMsg(text) {
 </script>
 
 </body>
-
 </html>
-
-
-
-
-
-
-
-
-
-
-
